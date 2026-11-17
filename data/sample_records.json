@@ -1,0 +1,50 @@
+
+[
+  {
+    "id": "drtb-2025-diagnosis",
+    "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
+    "year": 2025,
+    "topic": "Drug-resistant TB diagnosis",
+    "population": "People being evaluated for drug-resistant tuberculosis",
+    "recommendation": "The guideline states that drug-resistant TB confirmation uses NTEP-endorsed, quality-assured NAAT or Culture and Drug Susceptibility Testing (C&DST). Reference: Chapter 2, page 21.",
+    "supersedes": null
+  },
+  {
+    "id": "drtb-2025-regimen-selection",
+    "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
+    "year": 2025,
+    "topic": "DR-TB regimen selection and clinical decision-making",
+    "population": "People diagnosed with drug-resistant tuberculosis",
+    "recommendation": "Regimen selection must consider drug-resistance testing results, clinical assessment, previous treatment history, adverse-event risk, disease severity and disease site. Enrolment decisions are made by the nodal or district DR-TB centre with the relevant committee. Reference: Chapter 3, page 25.",
+    "supersedes": null
+  },
+  {
+    "id": "drtb-2025-differentiated-care",
+    "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
+    "year": 2025,
+    "topic": "Differentiated TB care assessment",
+    "population": "All patients with drug-resistant tuberculosis",
+    "recommendation": "The guideline states that all DR-TB patients need assessment at treatment initiation according to the guidance document for differentiated TB care. Reference: Chapter 3, page 25.",
+    "supersedes": null
+  },
+
+{
+  "id": "drtb-2025-bpalm-eligibility",
+  "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
+  "year": 2025,
+  "topic": "BPaLM regimen eligibility",
+  "population": "People aged 14 years and above with MDR/RR-TB",
+  "recommendation": "BPaLM is the first-choice treatment for eligible patients aged 14 years and above with MDR/RR-TB, regardless of fluoroquinolone resistance or HIV status. Eligibility criteria must be assessed before treatment initiation. Reference: Chapter 3, section 3.3, page 29.",
+  "supersedes": null
+},
+{
+  "id": "drtb-2025-bpalm-monitoring",
+  "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
+  "year": 2025,
+  "topic": "BPaLM follow-up monitoring",
+  "population": "Patients initiated on the BPaLM regimen",
+  "recommendation": "Patients receiving BPaLM require regular clinical, bacteriological, radiological, ECG and biochemical monitoring. Clinical reviews are monthly, while CBC and ECG assessments are scheduled on days 15 and 30 and then monthly through month six. Reference: Chapter 3, section 3.3.7, page 36.",
+  "supersedes": null
+}
+
+]
