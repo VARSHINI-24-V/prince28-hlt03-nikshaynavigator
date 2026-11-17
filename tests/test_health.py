@@ -17,4 +17,5 @@ def test_readiness_endpoint():
 
     assert response.status_code == 200
     assert response.json()["status"] == "ready"
-    assert response.json()["guidelines_loaded"] is False
+    assert response.json()["guidelines_loaded"] is True
+    assert response.json()["guideline_count"] == 5

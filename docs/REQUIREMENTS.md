@@ -44,4 +44,4 @@ The API shall expose a health endpoint and a readiness endpoint to distinguish s
 
 ### NFR-05: Maintainability
 
-The application shall use a modular Python package structure, automated tests, Ruff code-quality checks and pre-commit hooks.
+The application shall use a modular Python package structure, automated tests with at least 6 passing test cases, Ruff code-quality checks with zero linting errors, and pre-commit hooks that pass before every commit.
