@@ -50,6 +50,8 @@ class DocumentRepository:
         filters: dict[str, str],
         limit: int,
         offset: int,
+        sort_by: str = "external_id",
+        order: str = "asc",
     ) -> tuple[int, list[dict[str, Any]]]:
         stmt = select(Document)
 
@@ -76,8 +78,21 @@ class DocumentRepository:
             select(func.count()).select_from(stmt.subquery())
         )
 
+        sort_columns = {
+            "external_id": Document.external_id,
+            "title": Document.title,
+            "published_on": Document.published_on,
+        }
+
+        sort_column = sort_columns[sort_by]
+
+        if order == "desc":
+            sort_column = sort_column.desc()
+        else:
+            sort_column = sort_column.asc()
+
         rows = await self.session.scalars(
-            stmt.order_by(Document.external_id).limit(limit).offset(offset)
+            stmt.order_by(sort_column).limit(limit).offset(offset)
         )
 
         return total or 0, [to_dict(doc) for doc in rows]

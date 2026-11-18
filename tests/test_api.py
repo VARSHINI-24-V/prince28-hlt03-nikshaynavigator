@@ -21,7 +21,16 @@ DOCUMENTS = [
 
 
 class FakeRepository:
-    async def list(self, *, q, filters, limit, offset):
+    async def list(
+        self,
+        *,
+        q,
+        filters,
+        limit,
+        offset,
+        sort_by="external_id",
+        order="asc",
+    ):
         records = DOCUMENTS.copy()
 
         if q:
@@ -33,6 +42,14 @@ class FakeRepository:
 
         for key, value in filters.items():
             records = [doc for doc in records if str(doc.get(key)) == value]
+
+        records.sort(
+            key=lambda doc: (
+                doc.get(sort_by) is None,
+                doc.get(sort_by) or "",
+            ),
+            reverse=(order == "desc"),
+        )
 
         total = len(records)
         return total, records[offset : offset + limit]
@@ -133,3 +150,29 @@ def test_invalid_metadata_filter(client):
 
     assert response.status_code == 400
     assert "Invalid filter name" in response.json()["detail"]
+
+
+def test_sort_documents_by_title_ascending(client):
+    response = client.get("/v1/documents?sort_by=title&order=asc")
+
+    assert response.status_code == 200
+
+    titles = [doc["title"] for doc in response.json()["items"]]
+
+    assert titles == sorted(titles)
+
+
+def test_sort_documents_by_title_descending(client):
+    response = client.get("/v1/documents?sort_by=title&order=desc")
+
+    assert response.status_code == 200
+
+    titles = [doc["title"] for doc in response.json()["items"]]
+
+    assert titles == sorted(titles, reverse=True)
+
+
+def test_invalid_sort_field(client):
+    response = client.get("/v1/documents?sort_by=invalid&order=asc")
+
+    assert response.status_code == 400

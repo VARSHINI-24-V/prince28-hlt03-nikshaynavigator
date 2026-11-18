@@ -25,10 +25,26 @@ async def list_documents(
     q: str | None = None,
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=20, ge=1, le=100),
+    sort_by: str = Query(default="external_id"),
+    order: str = Query(default="asc"),
 ) -> dict[str, Any]:
     """List documents with search, metadata filters and pagination."""
 
-    reserved = {"q", "skip", "limit"}
+    reserved = {"q", "skip", "limit", "sort_by", "order"}
+    allowed_sort_fields = {"external_id", "title", "published_on"}
+
+    if sort_by not in allowed_sort_fields:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid sort field: {sort_by}",
+        )
+
+    if order not in {"asc", "desc"}:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid sort order. Use 'asc' or 'desc'.",
+        )
+
     filters: dict[str, str] = {}
 
     for key, value in request.query_params.multi_items():
@@ -48,6 +64,8 @@ async def list_documents(
         filters=filters,
         limit=limit,
         offset=skip,
+        sort_by=sort_by,
+        order=order,
     )
 
     return {
