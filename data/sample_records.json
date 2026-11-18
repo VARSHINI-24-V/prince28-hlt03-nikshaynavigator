@@ -4,10 +4,11 @@
     "id": "drtb-2025-diagnosis",
     "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
     "year": 2025,
-    "topic": "Drug-resistant TB diagnosis",
+    "topic": "Drug-resistant TB diagnosis - loader test",
     "population": "People being evaluated for drug-resistant tuberculosis",
     "recommendation": "The guideline states that drug-resistant TB confirmation uses NTEP-endorsed, quality-assured NAAT or Culture and Drug Susceptibility Testing (C&DST). Reference: Chapter 2, page 21.",
-    "supersedes": null
+    "supersedes": null,
+    "source_url": "https://tbcindia.mohfw.gov.in/wp-content/uploads/2025/03/National-Guidelines-for-Management-of-DR-TB_27-3-2025.pdf"
   },
   {
     "id": "drtb-2025-regimen-selection",
@@ -16,7 +17,8 @@
     "topic": "DR-TB regimen selection and clinical decision-making",
     "population": "People diagnosed with drug-resistant tuberculosis",
     "recommendation": "Regimen selection must consider drug-resistance testing results, clinical assessment, previous treatment history, adverse-event risk, disease severity and disease site. Enrolment decisions are made by the nodal or district DR-TB centre with the relevant committee. Reference: Chapter 3, page 25.",
-    "supersedes": null
+    "supersedes": null,
+    "source_url": "https://tbcindia.mohfw.gov.in/wp-content/uploads/2025/03/National-Guidelines-for-Management-of-DR-TB_27-3-2025.pdf"
   },
   {
     "id": "drtb-2025-differentiated-care",
@@ -25,26 +27,179 @@
     "topic": "Differentiated TB care assessment",
     "population": "All patients with drug-resistant tuberculosis",
     "recommendation": "The guideline states that all DR-TB patients need assessment at treatment initiation according to the guidance document for differentiated TB care. Reference: Chapter 3, page 25.",
-    "supersedes": null
+    "supersedes": null,
+    "source_url": "https://tbcindia.mohfw.gov.in/wp-content/uploads/2025/03/National-Guidelines-for-Management-of-DR-TB_27-3-2025.pdf"
+  },
+  {
+    "id": "drtb-2025-bpalm-eligibility",
+    "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
+    "year": 2025,
+    "topic": "BPaLM regimen eligibility",
+    "population": "People aged 14 years and above with MDR/RR-TB",
+    "recommendation": "BPaLM is the first-choice treatment for eligible patients aged 14 years and above with MDR/RR-TB, regardless of fluoroquinolone resistance or HIV status. Eligibility criteria must be assessed before treatment initiation. Reference: Chapter 3, section 3.3, page 29.",
+    "supersedes": null,
+    "source_url": "https://tbcindia.mohfw.gov.in/wp-content/uploads/2025/03/National-Guidelines-for-Management-of-DR-TB_27-3-2025.pdf"
+  },
+  {
+    "id": "drtb-2025-bpalm-monitoring",
+    "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
+    "year": 2025,
+    "topic": "BPaLM follow-up monitoring",
+    "population": "Patients initiated on the BPaLM regimen",
+    "recommendation": "Patients receiving BPaLM require regular clinical, bacteriological, radiological, ECG and biochemical monitoring. Clinical reviews are monthly, while CBC and ECG assessments are scheduled on days 15 and 30 and then monthly through month six. Reference: Chapter 3, section 3.3.7, page 36.",
+    "supersedes": null,
+    "source_url": "https://tbcindia.mohfw.gov.in/wp-content/uploads/2025/03/National-Guidelines-for-Management-of-DR-TB_27-3-2025.pdf"
+  },
+  {
+    "id": "drtb-2025-pre-treatment-clinical-evaluation",
+    "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
+    "year": 2025,
+    "topic": "Pre-treatment clinical evaluation",
+    "population": "Patients with MDR/RR-TB",
+    "recommendation": "Pre-treatment evaluation includes history and physical examination, previous anti-TB drug exposure, nutritional assessment, and relevant neurological and ophthalmic evaluation. Reference: Chapter 3, section 3.2.1, page 28.",
+    "supersedes": null,
+    "source_url": "https://tbcindia.mohfw.gov.in/wp-content/uploads/2025/03/National-Guidelines-for-Management-of-DR-TB_27-3-2025.pdf"
+  },
+  {
+    "id": "drtb-2025-pre-treatment-laboratory-evaluation",
+    "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
+    "year": 2025,
+    "topic": "Pre-treatment laboratory evaluation",
+    "population": "Patients with MDR/RR-TB",
+    "recommendation": "The pre-treatment laboratory evaluation table includes blood glucose, HIV testing following counselling, complete blood count, liver and renal function tests, serum electrolytes, chest X-ray and ECG. Reference: Chapter 3, section 3.2.1, page 28.",
+    "supersedes": null,
+    "source_url": "https://tbcindia.mohfw.gov.in/wp-content/uploads/2025/03/National-Guidelines-for-Management-of-DR-TB_27-3-2025.pdf"
+  },
+  {
+    "id": "drtb-2025-treatment-initiation",
+    "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
+    "year": 2025,
+    "topic": "Treatment initiation and eligibility assessment",
+    "population": "Patients diagnosed with MDR/RR-TB",
+    "recommendation": "Patients diagnosed with MDR/RR-TB are evaluated against the relevant eligibility criteria. The N/DDR-TBC committee determines the appropriate regimen based on the guideline's treatment algorithm. Reference: Chapter 3, section 3.2.2, page 28.",
+    "supersedes": null,
+    "source_url": "https://tbcindia.mohfw.gov.in/wp-content/uploads/2025/03/National-Guidelines-for-Management-of-DR-TB_27-3-2025.pdf"
+  },
+  {
+    "id": "drtb-2025-regimen-decision-factors",
+    "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
+    "year": 2025,
+    "topic": "Factors considered in treatment decisions",
+    "population": "Patients requiring DR-TB treatment planning",
+    "recommendation": "Treatment decisions consider drug-resistance testing, clinical assessment, treatment history, risk of adverse events, disease severity and disease site. Reference: Chapter 3, page 25.",
+    "supersedes": null,
+    "source_url": "https://tbcindia.mohfw.gov.in/wp-content/uploads/2025/03/National-Guidelines-for-Management-of-DR-TB_27-3-2025.pdf"
+  },
+  {
+    "id": "drtb-2025-patient-counselling",
+    "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
+    "year": 2025,
+    "topic": "Patient and family counselling",
+    "population": "Patients with TB and their family members",
+    "recommendation": "Health education and counselling should explain the disease, its transmission and the importance of regular and adequate treatment. Reference: Chapter 4, section 4.2, page 55.",
+    "supersedes": null,
+    "source_url": "https://tbcindia.mohfw.gov.in/wp-content/uploads/2025/03/National-Guidelines-for-Management-of-DR-TB_27-3-2025.pdf"
+  },
+  {
+    "id": "drtb-2025-continuous-counselling",
+    "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
+    "year": 2025,
+    "topic": "Continuity of patient counselling",
+    "population": "Patients receiving TB treatment",
+    "recommendation": "Counselling should begin when diagnosis is established and continue during healthcare facility visits and appropriate home or telephone-based follow-up. Reference: Chapter 4, section 4.2, page 55.",
+    "supersedes": null,
+    "source_url": "https://tbcindia.mohfw.gov.in/wp-content/uploads/2025/03/National-Guidelines-for-Management-of-DR-TB_27-3-2025.pdf"
+  },
+  {
+    "id": "drtb-2025-aarogya-saathi-app",
+    "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
+    "year": 2025,
+    "topic": "TB Aarogya Saathi mobile application",
+    "population": "TB patients and their caregivers",
+    "recommendation": "Patients and caregivers should be encouraged to use the TB Aarogya Saathi mobile application linked to the patient's Ni-kshay ID to track care-related information, treatment adherence and enablers. Reference: Chapter 4, section 4.3, page 56.",
+    "supersedes": null,
+    "source_url": "https://tbcindia.mohfw.gov.in/wp-content/uploads/2025/03/National-Guidelines-for-Management-of-DR-TB_27-3-2025.pdf"
+  },
+  {
+    "id": "drtb-2025-digital-adherence-monitoring",
+    "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
+    "year": 2025,
+    "topic": "Digital treatment adherence monitoring",
+    "population": "Patients receiving TB treatment",
+    "recommendation": "Digital adherence technology can support adherence monitoring through reporting linked to Ni-kshay and help prioritize home visits for patients who interrupt treatment. Reference: Chapter 4, section 4.3, page 56.",
+    "supersedes": null,
+    "source_url": "https://tbcindia.mohfw.gov.in/wp-content/uploads/2025/03/National-Guidelines-for-Management-of-DR-TB_27-3-2025.pdf"
+  },
+  {
+    "id": "drtb-2025-nutritional-assessment",
+    "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
+    "year": 2025,
+    "topic": "Nutritional assessment and support",
+    "population": "Patients receiving TB treatment",
+    "recommendation": "Nutritional assessment should be conducted during pre-treatment evaluation and at every follow-up visit. Nutrition counselling, support linkages and supplementation should be offered as appropriate. Reference: Chapter 4, section 4.4, page 56.",
+    "supersedes": null,
+    "source_url": "https://tbcindia.mohfw.gov.in/wp-content/uploads/2025/03/National-Guidelines-for-Management-of-DR-TB_27-3-2025.pdf"
+  },
+  {
+    "id": "drtb-2025-ambulatory-care-referral",
+    "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
+    "year": 2025,
+    "topic": "Ambulatory care referral and coordination",
+    "population": "Patients referred for ambulatory DR-TB care",
+    "recommendation": "The referring DR-TB centre should inform the receiving healthcare provider in advance and obtain confirmation that the patient has reported for ambulatory care. Reference: Chapter 4, section 4.1, page 55.",
+    "supersedes": null,
+    "source_url": "https://tbcindia.mohfw.gov.in/wp-content/uploads/2025/03/National-Guidelines-for-Management-of-DR-TB_27-3-2025.pdf"
+  },
+  {
+    "id": "drtb-2025-treatment-interruption-prevention",
+    "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
+    "year": 2025,
+    "topic": "Prevention of treatment interruption",
+    "population": "Patients receiving drug-resistant TB treatment",
+    "recommendation": "The guideline emphasizes efforts to prevent treatment interruption and loss to follow-up, including prompt retrieval of patients who fail to attend for their daily dose and support to manage adverse events. Reference: Chapter 3, section 3.11, page 53.",
+    "supersedes": null,
+    "source_url": "https://tbcindia.mohfw.gov.in/wp-content/uploads/2025/03/National-Guidelines-for-Management-of-DR-TB_27-3-2025.pdf"
+  },
+  {
+    "id": "drtb-2025-missed-dose-management",
+    "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
+    "year": 2025,
+    "topic": "Management of missed treatment doses",
+    "population": "Patients who miss doses during DR-TB treatment",
+    "recommendation": "The guideline provides separate guidance for missed doses and treatment interruptions. Missed doses during the applicable treatment phases must be addressed according to the relevant regimen-specific guidance. Reference: Chapter 3, section 3.11, pages 53-54.",
+    "supersedes": null,
+    "source_url": "https://tbcindia.mohfw.gov.in/wp-content/uploads/2025/03/National-Guidelines-for-Management-of-DR-TB_27-3-2025.pdf"
+  },
+  {
+    "id": "drtb-2025-treatment-outcome-recording",
+    "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
+    "year": 2025,
+    "topic": "Recording final treatment outcomes",
+    "population": "Patients completing or discontinuing DR-TB treatment",
+    "recommendation": "The guideline defines final treatment outcomes including treatment failed, cured, treatment completed, died, lost to follow-up, not evaluated and treatment regimen changed. Reference: Chapter 5, section 5.2, pages 57-59.",
+    "supersedes": null,
+    "source_url": "https://tbcindia.mohfw.gov.in/wp-content/uploads/2025/03/National-Guidelines-for-Management-of-DR-TB_27-3-2025.pdf"
   },
 
-{
-  "id": "drtb-2025-bpalm-eligibility",
-  "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
-  "year": 2025,
-  "topic": "BPaLM regimen eligibility",
-  "population": "People aged 14 years and above with MDR/RR-TB",
-  "recommendation": "BPaLM is the first-choice treatment for eligible patients aged 14 years and above with MDR/RR-TB, regardless of fluoroquinolone resistance or HIV status. Eligibility criteria must be assessed before treatment initiation. Reference: Chapter 3, section 3.3, page 29.",
-  "supersedes": null
-},
-{
-  "id": "drtb-2025-bpalm-monitoring",
-  "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
-  "year": 2025,
-  "topic": "BPaLM follow-up monitoring",
-  "population": "Patients initiated on the BPaLM regimen",
-  "recommendation": "Patients receiving BPaLM require regular clinical, bacteriological, radiological, ECG and biochemical monitoring. Clinical reviews are monthly, while CBC and ECG assessments are scheduled on days 15 and 30 and then monthly through month six. Reference: Chapter 3, section 3.3.7, page 36.",
-  "supersedes": null
-}
+  {
+    "id": "drtb-2025-long-term-follow-up",
+    "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
+    "year": 2025,
+    "topic": "Long-term follow-up after DR-TB treatment",
+    "population": "Patients treated for drug-resistant tuberculosis",
+    "recommendation": "All patients should be subjected to long-term follow-ups at months 6, 12, 18 and 24. Reference: Chapter 4, page 55.",
+    "supersedes": null,
+    "source_url": "https://tbcindia.mohfw.gov.in/wp-content/uploads/2025/03/National-Guidelines-for-Management-of-DR-TB_27-3-2025.pdf"
+  },
+  {
+    "id": "drtb-2025-community-support",
+    "document": "National Guidelines for Management of Drug Resistant TB - Central TB Division, NTEP, MoHFW, Government of India",
+    "year": 2025,
+    "topic": "Community support for TB patients",
+    "population": "People receiving TB treatment",
+    "recommendation": "The guideline includes community support to TB patients under the Pradhan Mantri TB Mukt Bharat Abhiyaan. Reference: Chapter 4, section 4.5, page 56.",
+    "supersedes": null,
+    "source_url": "https://tbcindia.mohfw.gov.in/wp-content/uploads/2025/03/National-Guidelines-for-Management-of-DR-TB_27-3-2025.pdf"
+  }
 
 ]
