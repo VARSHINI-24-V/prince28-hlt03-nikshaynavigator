@@ -1,24 +1,31 @@
-from fastapi import APIRouter
+"""Health and readiness endpoints."""
 
-from nikshaynavigator.store import load_documents
+from fastapi import APIRouter, Depends, HTTPException
 
-router = APIRouter()
+from nikshaynavigator.api.deps import check_db
+
+router = APIRouter(tags=["Health"])
 
 
 @router.get("/health")
-def health_check():
-    return {
-        "status": "healthy",
-        "service": "NikshayNavigator",
-    }
+async def health() -> dict:
+    """Check whether the API process is running."""
+    return {"status": "healthy"}
 
 
 @router.get("/ready")
-def readiness_check():
-    documents = load_documents()
+async def ready(database: bool = Depends(check_db)) -> dict:
+    """Check whether the API and its database are ready."""
+    if not database:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "status": "not_ready",
+                "checks": {"database": False},
+            },
+        )
 
     return {
         "status": "ready",
-        "guidelines_loaded": len(documents) > 0,
-        "guideline_count": len(documents),
+        "checks": {"database": True},
     }

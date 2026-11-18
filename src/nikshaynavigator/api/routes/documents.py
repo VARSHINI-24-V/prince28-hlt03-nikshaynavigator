@@ -1,58 +1,77 @@
+"""Document listing and retrieval endpoints."""
+
+import re
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
-from nikshaynavigator.api.deps import get_documents
+from nikshaynavigator.api.deps import get_repo
+from nikshaynavigator.db.repository import DocumentRepository
 
 router = APIRouter(prefix="/v1/documents", tags=["Documents"])
 
-DocumentsDependency = Annotated[
-    list[dict[str, Any]],
-    Depends(get_documents),
+RepositoryDependency = Annotated[
+    DocumentRepository,
+    Depends(get_repo),
 ]
+
+FILTER_KEY = re.compile(r"^[a-z_][a-z0-9_]{0,40}$")
 
 
 @router.get("")
-def list_documents(
-    documents: DocumentsDependency,
+async def list_documents(
+    request: Request,
+    repo: RepositoryDependency,
     q: str | None = None,
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=20, ge=1, le=100),
 ) -> dict[str, Any]:
-    """List guideline documents with optional search and pagination."""
+    """List documents with search, metadata filters and pagination."""
 
-    if q:
-        search_term = q.lower()
-        documents = [
-            document
-            for document in documents
-            if search_term
-            in " ".join(str(value) for value in document.values()).lower()
-        ]
+    reserved = {"q", "skip", "limit"}
+    filters: dict[str, str] = {}
 
-    total = len(documents)
-    items = documents[skip : skip + limit]
+    for key, value in request.query_params.multi_items():
+        if key in reserved:
+            continue
+
+        if not FILTER_KEY.fullmatch(key):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid filter name: {key}",
+            )
+
+        filters[key] = value
+
+    total, items = await repo.list(
+        q=q,
+        filters=filters,
+        limit=limit,
+        offset=skip,
+    )
 
     return {
         "total": total,
         "skip": skip,
         "limit": limit,
         "items": items,
+        "filters": filters,
     }
 
 
 @router.get("/{document_id}")
-def get_document(
+async def get_document(
     document_id: str,
-    documents: DocumentsDependency,
+    repo: RepositoryDependency,
 ) -> dict[str, Any]:
-    """Retrieve one guideline document by its ID."""
+    """Retrieve one document by its ID."""
 
-    for document in documents:
-        if document.get("id") == document_id:
-            return document
+    document = await repo.get(document_id)
 
-    raise HTTPException(
-        status_code=404,
-        detail=f"Document '{document_id}' not found",
-    )
+    if document is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Document '{document_id}' not found",
+        )
+
+    return document
