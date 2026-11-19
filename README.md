@@ -179,3 +179,36 @@ NikshayNavigator is an educational and development project based on public gover
 **Project:** NikshayNavigator
 **Programme:** HLT-03 Healthcare
 **Repository:** `prince28-hlt03-nikshaynavigator`
+
+
+## Run locally in one command
+
+You need Docker Desktop running. From a fresh clone:
+
+```bash
+docker compose up --build
+```
+
+This starts PostgreSQL (with pgvector), Redis, runs database migrations, loads the sample data, and starts the API.
+
+- API documentation: http://localhost:8001/docs
+- Liveness: http://localhost:8001/health
+- Readiness: http://localhost:8001/ready
+
+Stop the services with `Ctrl+C`, then run:
+
+```bash
+docker compose down
+```
+
+Add `-v` to also delete the database volume.
+
+## Develop and test
+
+| Task | Mac / Linux | Windows |
+|---|---|---|
+| Run API with reload | `make dev` | `uv run poe dev` |
+| Unit tests | `make test` | `uv run poe test` |
+| Integration tests | `make test-integration` | `uv run poe test-integration` |
+| Coverage report | `make cov` | `uv run poe cov` |
+| Lint and format check | `make lint` | `uv run poe lint` |
