@@ -212,10 +212,17 @@ Run only unit tests:
 uv run pytest tests/unit -v
 ```
 
-Run integration tests against the PostgreSQL test database configured by `TEST_DATABASE_URL`:
+Run integration tests against the dedicated `app_test` database created by the PostgreSQL initialization script. Start the Docker Compose database first.
 
-```bash
+**Windows PowerShell**
+```powershell
+$env:TEST_DATABASE_URL = "postgresql://app:app@localhost:5433/app_test"
 uv run pytest tests/integration -v
+```
+
+**macOS / Linux**
+```bash
+TEST_DATABASE_URL="postgresql://app:app@localhost:5433/app_test" uv run pytest tests/integration -v
 ```
 
 Run lint and formatting checks:
