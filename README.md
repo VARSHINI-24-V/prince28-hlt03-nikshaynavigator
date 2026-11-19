@@ -2,9 +2,9 @@
 
 **An AI-powered NTEP guideline assistant for healthcare field staff.**
 
-NikshayNavigator is a GenAI-based question-answering system designed to help healthcare field staff access accurate information from official National Tuberculosis Elimination Programme (NTEP) guidelines.
+NikshayNavigator is a GenAI-based question-answering project designed to help healthcare field staff access accurate information from official National Tuberculosis Elimination Programme (NTEP) guidelines.
 
-It answers questions about TB diagnosis, drug-resistant TB treatment regimens, TB preventive treatment, Ni-kshay Poshan Yojana and reporting procedures, with references to the relevant government guideline documents.
+The project focuses on questions about TB diagnosis, drug-resistant TB treatment regimens, TB preventive treatment, Ni-kshay Poshan Yojana and reporting procedures, with references to relevant government guideline documents.
 
 ## 🎯 Problem Statement
 
@@ -12,7 +12,7 @@ NTEP guidance is distributed across multiple government documents, including DR-
 
 Newer documents may replace older recommendations. Healthcare field staff need a reliable way to identify the latest valid guidance without accidentally using superseded treatment recommendations.
 
-NikshayNavigator aims to address this problem through guideline-based question answering with source citations and guideline version tracking.
+NikshayNavigator is being developed to address this problem through guideline-based question answering, source citations and guideline version tracking.
 
 ## 👤 Target User
 
@@ -20,17 +20,16 @@ NikshayNavigator aims to address this problem through guideline-based question a
 
 A healthcare field professional who follows approximately 120 TB patients and answers questions from patients and private doctors.
 
-## ✨ Key Features
+## ✨ Intended Capabilities
 
-- **Guideline-Based Q&A:** Answers TB programme questions using official NTEP and Central TB Division documents.
-- **Source Citations:** Provides the guideline document name and publication year for every guideline-based answer.
-- **Latest Guideline Prioritization:** Prioritizes the latest valid guidance when older and newer documents disagree.
-- **Guideline Timeline:** Identifies the guideline year used and explains whether a newer document changed the recommendation.
-- **Safe Information Handling:** Clearly identifies unavailable information and avoids inventing patient-specific details.
-- **Version Consistency:** Prevents mixing treatment recommendations from different guideline years.
+- **Guideline-Based Q&A:** Answer TB programme questions using official NTEP and Central TB Division documents.
+- **Source Citations:** Provide the guideline document name and publication year for guideline-based answers.
+- **Latest Guideline Prioritization:** Prioritize the latest valid guidance when older and newer documents disagree.
+- **Guideline Timeline:** Identify the guideline year used and explain whether a newer document changed the recommendation.
+- **Safe Information Handling:** Identify unavailable information and avoid inventing patient-specific details.
+- **Version Consistency:** Avoid mixing treatment recommendations from different guideline years.
 
-*These are the intended project capabilities; implementation and evaluation are in progress.*
-
+These are project goals; retrieval-augmented, citation-aware answer generation and the full evaluation target remain under development.
 
 ## 📚 Data Sources
 
@@ -47,8 +46,7 @@ Extended document scope:
 - All relevant guidelines, training modules and circulars.
 - Approximately 5,000+ pages.
 
-Only official public government documents will be used as guideline sources.
-
+Only official public government documents are intended to be used as guideline sources.
 
 ## ⚠️ Key Technical Challenge
 
@@ -57,7 +55,6 @@ Only official public government documents will be used as guideline sources.
 Drug-resistant TB treatment recommendations have changed between the 2021 and 2025 guidelines.
 
 NikshayNavigator must:
-
 - Identify the latest valid guideline.
 - Prefer newer valid recommendations over superseded guidance.
 - Explain when an older document disagrees with a newer document.
@@ -70,34 +67,49 @@ NikshayNavigator must:
 | Programming Language | Python 3.12+ |
 | Project Management | uv |
 | Backend Framework | FastAPI |
-| Data Validation | Pydantic |
+| Data Validation / Settings | Pydantic |
 | API Server | Uvicorn |
+| Database | PostgreSQL with pgvector |
+| Cache / Service | Redis |
+| Database Migrations | Alembic |
 | Testing | Pytest |
-| Code Quality | Ruff |
+| Code Quality | Ruff and pre-commit |
 | Version Control | Git and GitHub |
 
 ## 📊 Target Evaluation Metric
 
 **95%+ latest-guideline correctness**
 
-The target is to achieve at least 95% correctness on a set of 40 evaluation questions where older and newer guideline documents differ.
+The target is to achieve at least 95% correctness on a set of 40 evaluation questions where older and newer guideline documents differ. This is a target, not a measured result.
 
 ## 📁 Project Structure
 
 ```text
-nikshaynavigator/
-│
+.
+├── docker/
+│   └── initdb/
 ├── docs/
 │   ├── QUESTIONS.md
 │   └── REQUIREMENTS.md
-│
+├── migrations/
+├── scripts/
 ├── src/
 │   └── nikshaynavigator/
-│       └── __init__.py
-│
+│       ├── api/
+│       │   └── routes/
+│       ├── db/
+│       ├── config.py
+│       ├── logging_setup.py
+│       └── main.py
+├── tests/
+│   ├── integration/
+│   └── unit/
+├── .env.example
 ├── .gitignore
-├── .python-version
-├── README.md
+├── .pre-commit-config.yaml
+├── Dockerfile
+├── docker-compose.yml
+├── Makefile
 ├── pyproject.toml
 └── uv.lock
 ```
@@ -109,6 +121,7 @@ nikshaynavigator/
 - Python 3.12 or later
 - Git
 - uv
+- Docker Desktop (for the containerized PostgreSQL and Redis services)
 
 ### 1. Clone the repository
 
@@ -117,53 +130,145 @@ git clone https://github.com/VARSHINI-24-V/prince28-hlt03-nikshaynavigator.git
 cd prince28-hlt03-nikshaynavigator
 ```
 
-### 2. Install dependencies
+### 2. Configure environment variables
+
+Copy the example file:
+
+**Windows PowerShell**
+```powershell
+Copy-Item .env.example .env
+```
+
+**macOS / Linux**
+```bash
+cp .env.example .env
+```
+
+Review the values in `.env` and configure any required environment-specific settings. Do not commit `.env` or real credentials.
+
+### 3. Install dependencies
 
 ```bash
 uv sync --dev
 ```
 
-### 3. Activate the virtual environment (Windows PowerShell)
+You can use `uv run` for project commands without manually activating the virtual environment.
 
-```powershell
-.venv\Scripts\Activate.ps1
-```
+### 4. Start the application stack
 
-### 4. Verify the environment
+Make sure Docker Desktop is running, then execute:
 
 ```bash
-uv run python --version
+docker compose up --build -d
 ```
 
-## 🧪 Testing
+Compose starts PostgreSQL (pgvector) and Redis, runs the migration and sample-data loading job, and starts the API after its dependencies are ready.
 
-Run the automated tests using:
+Check service status:
 
 ```bash
-uv run pytest
+docker compose ps
 ```
 
-Run code quality checks using:
+View API logs:
+
+```bash
+docker compose logs -f api
+```
+
+### 5. Access the API
+
+The host ports configured in `docker-compose.yml` are:
+
+- API documentation: [http://localhost:8001/docs](http://localhost:8001/docs)
+- Liveness: [http://localhost:8001/health](http://localhost:8001/health)
+- Readiness: [http://localhost:8001/ready](http://localhost:8001/ready)
+
+PostgreSQL is exposed on host port `5433`; Redis is exposed on host port `6379`.
+
+### 6. Stop the services
+
+```bash
+docker compose down
+```
+
+To also remove the PostgreSQL data volume (this permanently deletes the local database data):
+
+```bash
+docker compose down -v
+```
+
+## 🧪 Testing and Code Quality
+
+Run the full test suite:
+
+```bash
+uv run pytest -v
+```
+
+Run only unit tests:
+
+```bash
+uv run pytest tests/unit -v
+```
+
+Run integration tests against the PostgreSQL test database configured by `TEST_DATABASE_URL`:
+
+```bash
+uv run pytest tests/integration -v
+```
+
+Run lint and formatting checks:
 
 ```bash
 uv run ruff check .
+uv run ruff format --check .
 ```
 
-*Application tests and API execution will be added as implementation progresses.*
+Run all configured pre-commit hooks:
+
+```bash
+uv run pre-commit run --all-files
+```
+
+The Day 4 development run completed with **28 tests passing**, including 7 database integration tests. This is a development verification result, not the 40-question clinical/guideline accuracy evaluation.
+
+## 🧰 Useful Development Commands
+
+| Task | Command |
+|---|---|
+| Run API locally with reload | `uv run poe dev` |
+| Run all tests | `uv run pytest -v` |
+| Run unit tests | `uv run poe test` |
+| Run integration tests | `uv run poe test-integration` |
+| Run coverage | `uv run poe cov` |
+| Lint | `uv run ruff check .` |
+| Check formatting | `uv run ruff format --check .` |
+| Apply formatting | `uv run ruff format .` |
+| Apply migrations locally | `uv run poe migrate` |
+| Load sample records locally | `uv run poe seed` |
+
+For the Docker-based workflow, use `docker compose up --build -d` so the services, migrations and sample-data loading run in the configured order.
 
 ## 📌 Project Status
 
-**Current phase:** Initial project foundation and documentation.
+**Current phase:** Backend foundation and containerized database/API infrastructure.
 
-Upcoming development activities:
+Implemented and verified in the Day 4 development workflow:
+- FastAPI application with health and readiness endpoints.
+- PostgreSQL and Redis services using Docker Compose.
+- Alembic database migrations and sample-record loading.
+- Document listing, retrieval and search API routes backed by the database.
+- Unit and database integration tests.
+- Ruff and pre-commit quality checks.
 
-- Guideline document collection and processing.
-- Document parsing and metadata extraction.
-- Guideline version tracking.
-- Retrieval-Augmented Generation (RAG) pipeline.
-- Citation-aware answer generation.
-- FastAPI endpoint development.
-- Evaluation using the 40-question test set.
+Next development activities:
+- Collect and process the full set of official NTEP guideline documents.
+- Improve document parsing and metadata extraction.
+- Implement guideline version and supersession tracking.
+- Build the retrieval-augmented generation (RAG) pipeline.
+- Add citation-aware answer generation and safe handling of unavailable information.
+- Evaluate against the 40-question test set and measure latest-guideline correctness.
 
 ## 📄 Documentation
 
@@ -176,39 +281,6 @@ NikshayNavigator is an educational and development project based on public gover
 
 ---
 
-**Project:** NikshayNavigator
-**Programme:** HLT-03 Healthcare
+**Project:** NikshayNavigator  
+**Programme:** HLT-03 Healthcare  
 **Repository:** `prince28-hlt03-nikshaynavigator`
-
-
-## Run locally in one command
-
-You need Docker Desktop running. From a fresh clone:
-
-```bash
-docker compose up --build
-```
-
-This starts PostgreSQL (with pgvector), Redis, runs database migrations, loads the sample data, and starts the API.
-
-- API documentation: http://localhost:8001/docs
-- Liveness: http://localhost:8001/health
-- Readiness: http://localhost:8001/ready
-
-Stop the services with `Ctrl+C`, then run:
-
-```bash
-docker compose down
-```
-
-Add `-v` to also delete the database volume.
-
-## Develop and test
-
-| Task | Mac / Linux | Windows |
-|---|---|---|
-| Run API with reload | `make dev` | `uv run poe dev` |
-| Unit tests | `make test` | `uv run poe test` |
-| Integration tests | `make test-integration` | `uv run poe test-integration` |
-| Coverage report | `make cov` | `uv run poe cov` |
-| Lint and format check | `make lint` | `uv run poe lint` |
