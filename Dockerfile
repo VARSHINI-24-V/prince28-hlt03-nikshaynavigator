@@ -1,4 +1,3 @@
-
 # Stage 1: Build the application
 FROM python:3.12-slim AS builder
 
@@ -21,6 +20,7 @@ RUN uv sync --frozen --no-dev --no-install-project
 
 RUN uv sync --frozen --no-dev
 
+
 # Stage 2: Production runtime
 FROM python:3.12-slim AS runtime
 
@@ -30,9 +30,16 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+# Update runtime OS packages to patch known vulnerabilities
+RUN apt-get update \
+    && apt-get upgrade -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create a non-root application user
 RUN groupadd --system app && \
     useradd --system --gid app --create-home app
 
+# Copy application and dependencies from builder
 COPY --from=builder --chown=app:app /app/.venv /app/.venv
 COPY --from=builder --chown=app:app /app/src /app/src
 COPY --from=builder --chown=app:app /app/migrations /app/migrations
@@ -40,7 +47,7 @@ COPY --from=builder --chown=app:app /app/scripts /app/scripts
 COPY --from=builder --chown=app:app /app/data /app/data
 COPY --from=builder --chown=app:app /app/alembic.ini /app/alembic.ini
 
-
+# Run as non-root user
 USER app
 
 # Git commit used to build this image
