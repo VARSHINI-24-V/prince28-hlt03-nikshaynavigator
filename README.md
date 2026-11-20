@@ -226,7 +226,7 @@ Run integration tests against the dedicated `app_test` database created by the P
 
 **Windows PowerShell**
 ```powershell
-$env:TEST_DATABASE_URL = "postgresql://app:app@localhost:5433/app_test"
+$env:TEST_DATABASE_URL = "postgresql://app:app@localhost:5433/app_test" # pragma: allowlist secret
 uv run pytest tests/integration -v
 ```
 
