@@ -39,6 +39,13 @@ def test_health_endpoint_includes_version(client):
     }
 
 
+def test_health_endpoint_supports_head(client):
+    response = client.head("/health")
+
+    assert response.status_code == 200
+    assert response.content == b""
+
+
 def test_readiness_endpoint(client):
     response = client.get("/ready")
 
