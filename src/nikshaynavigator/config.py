@@ -16,6 +16,8 @@ class Settings(BaseSettings):
 
     app_name: str = "nikshaynavigator"
     app_version: str = "0.1.0"
+    # Commit SHA used to identify the deployed application version.
+    git_sha: str = "dev"
     app_env: Literal["local", "ci", "production"]
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     data_file: Path = Path("data/sample_records.json")
