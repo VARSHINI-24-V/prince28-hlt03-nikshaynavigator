@@ -232,7 +232,7 @@ uv run pytest tests/integration -v
 
 **macOS / Linux**
 ```bash
-TEST_DATABASE_URL="postgresql://app:app@localhost:5433/app_test" uv run pytest tests/integration -v
+TEST_DATABASE_URL="postgresql://app:app@localhost:5433/app_test" uv run pytest tests/integration -v # pragma: allowlist secret
 ```
 
 Run lint and formatting checks:
