@@ -1,8 +1,13 @@
 # NikshayNavigator 🏥
 
-![CI](https://github.com/VARSHINI-24-V/prince28-hlt03-nikshaynavigator/actions/workflows/ci.yml/badge.svg)
-[![Live](https://img.shields.io/badge/Production-Live-brightgreen)](https://nikshaynavigator.onrender.com)
-![Uptime](https://img.shields.io/uptimerobot/status/m804746312-65cf30a46f8e4e897535214c)
+
+[![CI](https://github.com/VARSHINI-24-V/prince28-hlt03-nikshaynavigator/actions/workflows/ci.yml/badge.svg)](https://github.com/VARSHINI-24-V/prince28-hlt03-nikshaynavigator/actions/workflows/ci.yml)
+
+[![Live](https://img.shields.io/website?url=https%3A%2F%2Fnikshaynavigator.onrender.com%2Fhealth&label=live)](https://nikshaynavigator.onrender.com/docs)
+
+[![Uptime (30 days)](https://img.shields.io/uptimerobot/ratio/m804746312-65cf30a46f8e4e897535214c)](https://nikshaynavigator.onrender.com/health)
+
+**Live:** https://nikshaynavigator.onrender.com · [API docs](https://nikshaynavigator.onrender.com/docs) · [Health](https://nikshaynavigator.onrender.com/health)
 
 
 **An AI-powered NTEP guideline assistant for healthcare field staff.**

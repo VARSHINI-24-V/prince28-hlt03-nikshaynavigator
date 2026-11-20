@@ -194,3 +194,96 @@ database: true
 Automated tests cover:
 - Successful pool metrics response.
 - Missing database engine returns HTTP 503.
+
+
+# Day 5 - CI/CD, Production Deployment and Rollback
+
+## 10. Continuous Integration
+
+- GitHub Actions CI workflow: `.github/workflows/ci.yml`
+- CI runs on pull requests and pushes to main.
+- Checks include Ruff linting, tests, coverage and Docker image build.
+- Docker images are pushed to GHCR on main.
+- PR #6: https://github.com/VARSHINI-24-V/prince28-hlt03-nikshaynavigator/pull/6
+
+## 11. Main Branch Protection
+
+- Main branch protected using GitHub ruleset `protect-main`.
+- Pull requests required for changes.
+- Required status checks:
+  - `lint and test`
+  - `build image`
+- Branch deletion and force pushes restricted.
+
+## 12. Production Deployment
+
+- Hosting: Render
+- Live URL: https://nikshaynavigator.onrender.com
+- API documentation: https://nikshaynavigator.onrender.com/docs
+- Health endpoint: https://nikshaynavigator.onrender.com/health
+- Database: Neon PostgreSQL
+- Container registry: GHCR
+- CD workflow: `.github/workflows/cd.yml`
+- Deployment is triggered automatically after successful CI on main.
+- PR #7: https://github.com/VARSHINI-24-V/prince28-hlt03-nikshaynavigator/pull/7
+
+## 13. Smoke Test Verification
+
+Verified production endpoints:
+
+- GET `/health` - HTTP 200
+- GET `/ready` - HTTP 200, database true
+- GET `/v1/documents?limit=1` - HTTP 200
+- Total seeded documents: 20
+
+Initial automatic deployment:
+https://github.com/VARSHINI-24-V/prince28-hlt03-nikshaynavigator/actions/runs/44713520380
+
+## 14. Uptime Monitoring
+
+- Monitoring tool: UptimeRobot
+- Monitor URL: `https://nikshaynavigator.onrender.com/health`
+- Check interval: 5 minutes
+- Health endpoint supports GET and HEAD requests.
+- Monitor status verified as UP.
+
+## 15. Rollback Drill
+
+### Rollback
+
+- Workflow run: CD #4
+- Run URL: https://github.com/VARSHINI-24-V/prince28-hlt03-nikshaynavigator/actions/runs/44764074191
+- Rolled back to image SHA:
+  `2f5f16a62329384071067016b1ba915efbed4e98`
+- Workflow duration: 51 seconds
+- Smoke test passed.
+- `/health` reported the rollback version.
+- `/ready` confirmed database readiness.
+
+### Roll-forward
+
+- Workflow run: CD #5
+- Run URL: https://github.com/VARSHINI-24-V/prince28-hlt03-nikshaynavigator/actions/runs/44764982211
+- Restored image SHA:
+  `e237a9cb0ef26073ba0b0e4bc7c5c8f51f58b59e`
+- Workflow duration: 48 seconds
+- Smoke test passed.
+- `/health` reported the restored version.
+- `/ready` returned database true.
+- Documents endpoint returned 20 total records.
+
+### Migration Safety
+
+- Manual rollback and roll-forward runs skipped database migrations.
+- Production database readiness was verified after both deployments.
+
+## 16. Secrets and Configuration
+
+GitHub Actions secrets:
+- `DATABASE_URL`
+- `RENDER_DEPLOY_HOOK`
+
+GitHub Actions variable:
+- `LIVE_URL`
+
+Sensitive values are stored as secrets and are not committed to the repository.
