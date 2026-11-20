@@ -269,7 +269,7 @@ For the Docker-based workflow, use `docker compose up --build -d` so the service
 
 ## 📌 Project Status
 
-**Current phase:** Backend foundation and containerized database/API infrastructure.
+**Status:** Week 1 DevOps milestone complete · API live on Render · RAG implementation pending.
 
 Implemented and verified in the Day 4 development workflow:
 - FastAPI application with health and readiness endpoints.
