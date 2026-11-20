@@ -1,3 +1,146 @@
+
+# Day 1 - NikshayNavigator Foundation
+
+## 1. Project Setup
+
+- Project: NikshayNavigator
+- Python package: `nikshaynavigator`
+- Python version: 3.12
+- Package manager: uv
+- Project structure: src layout
+- Dependency management: `pyproject.toml` and `uv.lock`
+
+## 2. Project Definition and Documentation
+
+Created the initial project documentation:
+
+- `README.md` - project overview, target user, problem statement, data sources and target metric.
+- `docs/QUESTIONS.md` - 10 evaluation questions, including one unanswerable patient-specific question.
+- `docs/REQUIREMENTS.md` - 5 functional and 5 non-functional requirements.
+
+Target user:
+Senior Treatment Supervisor in Tiruvallur district who follows approximately 120 TB patients.
+
+Core problem:
+Providing reliable TB programme guidance while prioritizing the latest valid NTEP guidelines and avoiding superseded treatment recommendations.
+
+Target metric:
+95% latest-guideline correctness across 40 evaluation questions.
+
+## 3. Quality Gates and Secret Management
+
+Configured:
+
+- Ruff for linting and formatting.
+- Pytest for automated testing.
+- Pre-commit hooks.
+- `detect-secrets` for secret scanning.
+- `.gitignore` to exclude local and sensitive files.
+- `.env.example` for placeholder environment configuration.
+- `.env` for private local settings.
+
+Verified that `.env` is excluded from Git.
+
+## 4. FastAPI Service Foundation
+
+Implemented the initial FastAPI application with an application factory.
+
+Main components:
+
+- `config.py` - environment-based configuration using Pydantic Settings.
+- `logging_setup.py` - structured JSON logging.
+- `store.py` - JSON-based sample record storage.
+- `api/deps.py` - dependency injection.
+- `api/errors.py` - RFC 9457 problem-details error handling.
+- `api/middleware.py` - request ID, request timing and exception handling.
+- `api/routes/health.py` - health and readiness endpoints.
+- `api/routes/documents.py` - document listing and retrieval routes.
+- `api/main.py` - application factory and route registration.
+
+## 5. Initial API Endpoints
+
+Implemented:
+
+- GET `/health` - application liveness.
+- GET `/ready` - checks whether sample records are loaded.
+- GET `/v1/documents` - document listing with pagination and search.
+- GET `/v1/documents/{id}` - retrieve a document by ID.
+
+Additional behaviour:
+
+- HTTP 404 for missing documents.
+- HTTP 422 for invalid request parameters.
+- RFC 9457 problem-details responses.
+- Request IDs included in responses and structured logs.
+
+## 6. Initial Testing
+
+- Created automated API and health tests.
+- Initial test suite: 10 passing tests.
+- Ruff checks passed.
+- Verified application configuration rejects invalid `APP_ENV` values.
+
+## 7. Git and Pull Request
+
+- Development branch: `feat/day-01-foundation`.
+- Created and merged PR #1.
+- Repository: https://github.com/VARSHINI-24-V/prince28-hlt03-nikshaynavigator/pull/1
+
+---
+
+# Day 2 - Sample Data Completion
+
+## 1. Objective
+
+Complete the initial real-world sample dataset for NikshayNavigator before integrating PostgreSQL.
+
+The Day 1 assignment required at least 5 real records initially, increasing to 20 records by the end of the day.
+
+## 2. Data Source Categories
+
+Collected sample guideline information from public NTEP and Central TB Division sources, including:
+
+- Drug-resistant TB management guidelines.
+- TB preventive treatment guidelines.
+- Differentiated TB care guidance.
+- Technical and operational guidelines.
+- NTEP training modules.
+- Ni-kshay Poshan Yojana documents.
+
+## 3. Sample Record Structure
+
+The dataset uses fields such as:
+
+- `id`
+- `document`
+- `year`
+- `topic`
+- `population`
+- `recommendation`
+- `supersedes`
+- `source_url`
+
+## 4. Data Quality Rules
+
+- Every record must have a unique identifier.
+- Use real information from the source documents.
+- Do not invent missing values.
+- Use `null` when source information is unavailable.
+- Preserve document names and publication years.
+- Maintain source URLs for traceability.
+
+## 5. Dataset Verification
+
+File: `data/sample_records.json`
+
+- Required target: 20 records.
+- Current verified record count: 20.
+- Dataset used as the initial source for the Day 3 PostgreSQL migration and loader.
+
+## 6. Day 2 Outcome
+
+The 20-record sample dataset was available as a prerequisite for Day 3 database migration, idempotent loading and PostgreSQL-backed API development.
+
 # Day 3 - PostgreSQL Migration Notes
 
 ## 1. Database Setup
@@ -66,10 +209,12 @@ Verified endpoints:
 ## 5. Unit Tests
 
 Original Day 3 tests:
+
 - 16 passed.
 - 3 optional integration tests are skipped when `TEST_DATABASE_URL` is not configured.
 
 Additional enhancement tests:
+
 - Database pool monitoring tests.
 - API sorting tests.
 - Fake repository updated to support sorting.
@@ -192,98 +337,113 @@ database: true
 ```
 
 Automated tests cover:
+
 - Successful pool metrics response.
 - Missing database engine returns HTTP 503.
 
+# Day 4 - Docker and Database Testing
 
-# Day 5 - CI/CD, Production Deployment and Rollback
+## 1. Production Dockerfile
 
-## 10. Continuous Integration
+- Created a multi-stage Dockerfile.
+- Used Python 3.12 slim base image.
+- Used uv for dependency installation.
+- Configured a non-root application user.
+- Added commit SHA build argument for image version tracking.
 
-- GitHub Actions CI workflow: `.github/workflows/ci.yml`
-- CI runs on pull requests and pushes to main.
-- Checks include Ruff linting, tests, coverage and Docker image build.
-- Docker images are pushed to GHCR on main.
-- PR #6: https://github.com/VARSHINI-24-V/prince28-hlt03-nikshaynavigator/pull/6
+## 2. Docker Compose
 
-## 11. Main Branch Protection
+Configured services:
 
-- Main branch protected using GitHub ruleset `protect-main`.
-- Pull requests required for changes.
-- Required status checks:
-  - `lint and test`
-  - `build image`
-- Branch deletion and force pushes restricted.
+- FastAPI application
+- PostgreSQL with pgvector
+- Redis
+- Database migration and sample-data loading
 
-## 12. Production Deployment
+Verified service startup and health checks.
 
-- Hosting: Render
-- Live URL: https://nikshaynavigator.onrender.com
-- API documentation: https://nikshaynavigator.onrender.com/docs
-- Health endpoint: https://nikshaynavigator.onrender.com/health
-- Database: Neon PostgreSQL
-- Container registry: GHCR
-- CD workflow: `.github/workflows/cd.yml`
-- Deployment is triggered automatically after successful CI on main.
-- PR #7: https://github.com/VARSHINI-24-V/prince28-hlt03-nikshaynavigator/pull/7
+## 3. Testing Structure
 
-## 13. Smoke Test Verification
+Organized tests into:
 
-Verified production endpoints:
+- Unit tests
+- Database integration tests
 
-- GET `/health` - HTTP 200
-- GET `/ready` - HTTP 200, database true
-- GET `/v1/documents?limit=1` - HTTP 200
-- Total seeded documents: 20
+Configured a separate test database for integration testing.
 
-Initial automatic deployment:
-https://github.com/VARSHINI-24-V/prince28-hlt03-nikshaynavigator/actions/runs/44713520380
+## 4. Test Results
 
-## 14. Uptime Monitoring
+- 28 tests passed.
+- 7 database integration tests passed.
+- Coverage verification completed.
+- Ruff and pre-commit checks passed.
 
-- Monitoring tool: UptimeRobot
-- Monitor URL: `https://nikshaynavigator.onrender.com/health`
-- Check interval: 5 minutes
-- Health endpoint supports GET and HEAD requests.
-- Monitor status verified as UP.
+## 5. Developer Commands
 
-## 15. Rollback Drill
+Added Makefile and Poe task commands for common development operations.
 
-### Rollback
+## 6. GitHub Delivery
 
-- Workflow run: CD #4
-- Run URL: https://github.com/VARSHINI-24-V/prince28-hlt03-nikshaynavigator/actions/runs/44764074191
-- Rolled back to image SHA:
-  `2f5f16a62329384071067016b1ba915efbed4e98`
-- Workflow duration: 51 seconds
-- Smoke test passed.
-- `/health` reported the rollback version.
-- `/ready` confirmed database readiness.
+- PR #4: Docker and database testing.
+- PR #5: Development documentation and environment setup.
 
-### Roll-forward
+PR #4: https://github.com/VARSHINI-24-V/prince28-hlt03-nikshaynavigator/pull/4
+PR #5: https://github.com/VARSHINI-24-V/prince28-hlt03-nikshaynavigator/pull/5
 
-- Workflow run: CD #5
-- Run URL: https://github.com/VARSHINI-24-V/prince28-hlt03-nikshaynavigator/actions/runs/44764982211
-- Restored image SHA:
-  `e237a9cb0ef26073ba0b0e4bc7c5c8f51f58b59e`
-- Workflow duration: 48 seconds
-- Smoke test passed.
-- `/health` reported the restored version.
-- `/ready` returned database true.
-- Documents endpoint returned 20 total records.
 
-### Migration Safety
+# Day 5  - Audit Evidence and Lead Time
 
-- Manual rollback and roll-forward runs skipped database migrations.
-- Production database readiness was verified after both deployments.
+### Automatic Deployment Lead Time
 
-## 16. Secrets and Configuration
+Measured from PR merge to successful production smoke test.
 
-GitHub Actions secrets:
-- `DATABASE_URL`
-- `RENDER_DEPLOY_HOOK`
+| PR | Merge time (IST) | Smoke passed (IST) | Lead time |
+|---|---|---|---|
+| #7 | 15:14:53 | 15:17:13 | 2m 20s |
+| #8 | 15:40:52 | 15:43:19 | 2m 27s |
+| #9 | 20:33:21 | 20:36:14 | 2m 54s |
 
-GitHub Actions variable:
-- `LIVE_URL`
+Average lead time: approximately 2m 34s.
 
-Sensitive values are stored as secrets and are not committed to the repository.
+### Initial Automatic Deployment - Smoke Test Output
+
+```text
+ok   /health -> 200, version 37f70ae633e2eb781ed3044588bcbbdce3e3d7af
+ok   /ready -> 200 {'status': 'ready', 'checks': {'database': True}}
+ok   /v1/documents?limit=1 -> 200 (total=20, returned=1)
+Smoke test passed
+```
+
+### Rollback Drill Timing
+
+- Rollback started: 21:01:12 IST
+- Rollback smoke test passed: 21:02:00 IST
+- Workflow duration: 51 seconds.
+- Rollback SHA: `2f5f16a62329384071067016b1ba915efbed4e98`
+
+### Roll-forward Timing
+
+- Roll-forward started: 21:06:32 IST
+- Roll-forward smoke test passed: 21:07:17 IST
+- Workflow duration: 48 seconds.
+- Restored SHA: `e237a9cb0ef26073ba0b0e4bc7c5c8f51f58b59e`
+
+### Database Schema Safety
+
+The rollback changed the application image but did not revert the database schema. No schema-changing migration was introduced between the selected image versions. Both application versions were compatible with the existing schema.
+
+### First Request Performance
+
+UptimeRobot checks `/health` every five minutes. This periodic traffic helps keep the Render service warm and can reduce cold-start delays.
+
+### Remaining Stretch Tasks
+
+- Human deployment approval gate: pending verification/configuration.
+- Dependabot weekly updates: pending.
+- Pre-commit in CI: pending.
+- Lead-time measurement: completed.
+
+### Two Additional Enhancements
+
+- Container vulnerability scanning and SBOM generation: pending.
+- Nightly synthetic production monitoring: pending.
