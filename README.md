@@ -1,5 +1,10 @@
 # NikshayNavigator 🏥
 
+![CI](https://github.com/VARSHINI-24-V/prince28-hlt03-nikshaynavigator/actions/workflows/ci.yml/badge.svg)
+[![Live](https://img.shields.io/badge/Production-Live-brightgreen)](https://nikshaynavigator.onrender.com)
+![Uptime](https://img.shields.io/uptimerobot/status/m804746312-65cf30a46f8e4e897535214c)
+
+
 **An AI-powered NTEP guideline assistant for healthcare field staff.**
 
 NikshayNavigator is a GenAI-based question-answering project designed to help healthcare field staff access accurate information from official National Tuberculosis Elimination Programme (NTEP) guidelines.
