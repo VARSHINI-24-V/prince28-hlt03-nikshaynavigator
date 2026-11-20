@@ -40,8 +40,14 @@ COPY --from=builder --chown=app:app /app/scripts /app/scripts
 COPY --from=builder --chown=app:app /app/data /app/data
 COPY --from=builder --chown=app:app /app/alembic.ini /app/alembic.ini
 
+
 USER app
+
+# Git commit used to build this image
+ARG GIT_SHA=dev
+ENV GIT_SHA=${GIT_SHA}
 
 EXPOSE 8000
 
-CMD ["uvicorn", "nikshaynavigator.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000"]
+# Render provides PORT; use 8000 for local Docker runs
+CMD ["sh", "-c", "uvicorn nikshaynavigator.main:create_app --factory --host 0.0.0.0 --port ${PORT:-8000}"]

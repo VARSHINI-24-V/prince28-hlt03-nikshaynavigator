@@ -288,6 +288,6 @@ NikshayNavigator is an educational and development project based on public gover
 
 ---
 
-**Project:** NikshayNavigator  
-**Programme:** HLT-03 Healthcare  
+**Project:** NikshayNavigator
+**Programme:** HLT-03 Healthcare
 **Repository:** `prince28-hlt03-nikshaynavigator`
