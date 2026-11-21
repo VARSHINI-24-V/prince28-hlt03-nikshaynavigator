@@ -50,7 +50,7 @@ show_missing = true
 skip_covered = true
 
 [tool.poe.tasks]
-dev = "uvicorn nikshaynavigator.api.main:create_app --factory --reload --no-access-log"
+dev = "uvicorn nikshaynavigator.main:create_app --factory --reload --no-access-log"
 lint = ["_ruff_check", "_ruff_format"]
 _ruff_check = "ruff check ."
 _ruff_format = "ruff format --check ."

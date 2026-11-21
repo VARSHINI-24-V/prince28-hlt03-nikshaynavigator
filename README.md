@@ -164,6 +164,27 @@ uv sync --dev
 
 You can use `uv run` for project commands without manually activating the virtual environment.
 
+
+## Run locally in one command
+
+After configuring your `.env` file and starting Docker Desktop, run:
+
+```bash
+docker compose up --build -d
+```
+
+This starts the FastAPI application, PostgreSQL, Redis,
+database migrations and sample-data loading.
+
+Check the running services:
+
+```bash
+docker compose ps
+```
+
+API documentation: http://localhost:8001/docs
+
+
 ### 4. Start the application stack
 
 Make sure Docker Desktop is running, then execute:
