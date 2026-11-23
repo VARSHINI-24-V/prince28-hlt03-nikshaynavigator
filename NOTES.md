@@ -447,3 +447,37 @@ UptimeRobot checks `/health` every five minutes. This periodic traffic helps kee
 
 - Container vulnerability scanning and SBOM generation: pending.
 - Nightly synthetic production monitoring: pending.
+
+### robots.txt
+
+- Site: https://tbcindia.mohfw.gov.in
+- Result: HTTP 404 Not Found.
+- No robots.txt directives were published at this endpoint.
+- RFC 9309 classifies HTTP 4xx as unavailable; resource access is permitted under the robots protocol.
+- Website copyright and document-specific reuse restrictions are checked separately.
+
+## D06 · Collecting the corpus
+
+### Start target
+- Target: 15 core NTEP guidelines, approximately 1,500 pages.
+- First collection: 10 documents.
+- Initial download: 10 downloaded, 0 skipped, 0 blocked, 0 failed.
+
+### robots.txt
+- Site: https://tbcindia.mohfw.gov.in
+- Result: HTTP 404 Not Found.
+- No robots.txt directives were published at this endpoint.
+- Copyright and document-specific reuse restrictions are checked separately.
+
+### Kill and resume
+- Run 1: Pressed Ctrl+C after 4 completed files.
+- Run 2: downloaded=6, skipped=4, blocked=0, failed=0.
+- Run 3: downloaded=0, skipped=10, blocked=0, failed=0.
+- No completed document was downloaded again.
+
+### Initial integrity
+- Manifest records: 10.
+- Downloaded documents: 10.
+- Missing files: 0.
+- Partial files: 0.
+- Initial corpus size: approximately 135.4 MB.
