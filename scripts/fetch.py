@@ -29,6 +29,7 @@ from nikshaynavigator.ingest.fetch import (
     read_sources,
     slug,
 )
+from nikshaynavigator.ingest.integrity import verify_corpus
 
 ROOT = Path(__file__).resolve().parent.parent
 RAW_DIR = ROOT / "data" / "raw"
@@ -436,6 +437,47 @@ def command_manual(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_verify(_args: argparse.Namespace) -> int:
+    """Verify downloaded corpus integrity."""
+
+    result = verify_corpus(ROOT)
+
+    print("\nNikshayNavigator Corpus Integrity Audit")
+    print("----------------------------------------")
+
+    for key in (
+        "manifest_records",
+        "downloaded_records",
+        "verified",
+    ):
+        print(f"{key}: {result[key]}")
+
+    for key in (
+        "missing",
+        "corrupted",
+        "missing_hashes",
+        "unsafe_paths",
+        "partial_files",
+        "orphan_files",
+        "invalid_records",
+    ):
+        print(f"{key}: {len(result[key])}")
+
+        for item in result[key]:
+            print(f"  - {item}")
+
+    print(f"duplicate_groups: {len(result['duplicates'])}")
+
+    for group in result["duplicates"]:
+        print(f"  SHA-256: {group['sha256']}")
+        for path in group["paths"]:
+            print(f"    - {path}")
+
+    print("\nRESULT:", "PASS" if result["passed"] else "FAIL")
+
+    return 0 if result["passed"] else 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="NikshayNavigator polite, resumable corpus fetcher."
@@ -475,6 +517,12 @@ def build_parser() -> argparse.ArgumentParser:
     manual.add_argument("--source", required=True)
     manual.add_argument("--licence", required=True)
     manual.set_defaults(func=command_manual)
+
+    verify = commands.add_parser(
+        "verify",
+        help="Verify corpus files and SHA-256 integrity.",
+    )
+    verify.set_defaults(func=command_verify)
 
     return parser
 
