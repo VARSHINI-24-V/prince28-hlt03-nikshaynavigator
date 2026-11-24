@@ -47,6 +47,7 @@ async def store_parsed_document(
         "pages": len(parsed.pages),
         "tables": table_count,
         "source_path": path,
+        "scanned_pages": parsed.scanned_pages,
     }
 
     if document is None:

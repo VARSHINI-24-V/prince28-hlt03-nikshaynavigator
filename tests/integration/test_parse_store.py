@@ -232,3 +232,39 @@ async def test_repository_get_page_from_postgres(db_engine):
 
         assert missing_page is None
         assert missing_document is None
+
+
+async def test_store_parsed_document_saves_scanned_page_metadata(db_engine):
+    """Scanned page numbers should be persisted in document metadata."""
+
+    external_id = f"scanned-{uuid4().hex}"
+    path = f"data/raw/test/{uuid4().hex}.pdf"
+
+    parsed = make_parsed_doc(
+        pages=[
+            ParsedPage(
+                page_no=1,
+                text="Tuberculosis diagnosis and treatment information.",
+                headings=["Tuberculosis"],
+                tables=0,
+            ),
+            ParsedPage(
+                page_no=2,
+                text="",
+                headings=["Tuberculosis", "Scanned section"],
+                tables=0,
+            ),
+        ],
+    )
+    parsed.scanned_pages = [2]
+
+    async with make_sessionmaker(db_engine)() as session, session.begin():
+        document = await store_parsed_document(
+            session,
+            external_id=external_id,
+            parsed=parsed,
+            path=path,
+            sha256=uuid4().hex * 2,
+        )
+
+        assert document.metadata_["scanned_pages"] == [2]

@@ -223,3 +223,48 @@ def test_parse_text_file_rejects_empty_file(tmp_path):
 
     with pytest.raises(ParseError, match="empty"):
         parse_text_file(path)
+
+
+def test_detects_scanned_page_but_not_blank_page(tmp_path):
+    """Detect an image-only page without flagging a blank page."""
+
+    path = tmp_path / "mixed_guideline.pdf"
+    doc = pymupdf.open()
+
+    # Page 1: Native text.
+    page = doc.new_page()
+    page.insert_text(
+        (72, 72),
+        "Tuberculosis diagnosis and treatment guidelines. "
+        "Clinical assessment and patient monitoring are essential.",
+    )
+
+    # Page 2: Native text.
+    page = doc.new_page()
+    page.insert_text(
+        (72, 72),
+        "Treatment protocols describe medication, dosage, "
+        "follow-up and monitoring of tuberculosis patients.",
+    )
+
+    # Page 3: Image only — simulates a scanned page.
+    page = doc.new_page()
+    pixmap = pymupdf.Pixmap(
+        pymupdf.csRGB,
+        pymupdf.IRect(0, 0, 120, 120),
+        0,
+    )
+    pixmap.clear_with(220)
+    page.insert_image(page.rect, pixmap=pixmap)
+
+    # Page 4: Completely blank.
+    doc.new_page()
+
+    doc.save(path)
+    doc.close()
+
+    result = parse_pdf_pymupdf(path)
+
+    assert len(result.pages) == 4
+    assert result.scanned_pages == [3]
+    assert result.pages[3].text.strip() == ""
