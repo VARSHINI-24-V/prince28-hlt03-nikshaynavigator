@@ -7,6 +7,7 @@ from sqlalchemy import func, select
 
 from nikshaynavigator.config import Settings
 from nikshaynavigator.db.models import Page, ParseFailure
+from nikshaynavigator.db.repository import DocumentRepository
 from nikshaynavigator.db.session import make_engine, make_sessionmaker
 from nikshaynavigator.ingest.parse import (
     ParsedDoc,
@@ -200,3 +201,34 @@ async def test_store_parsed_document_is_idempotent(db_engine):
         )
 
         assert failure_count == 0
+
+
+async def test_repository_get_page_from_postgres(db_engine):
+    """Verify page retrieval against a real PostgreSQL database."""
+
+    external_id = f"page-test-{uuid4().hex}"
+    path = f"data/raw/test/{uuid4().hex}.pdf"
+
+    async with make_sessionmaker(db_engine)() as session, session.begin():
+        await store_parsed_document(
+            session,
+            external_id=external_id,
+            parsed=make_parsed_doc(),
+            path=path,
+            sha256=uuid4().hex * 2,
+        )
+
+        repo = DocumentRepository(session)
+
+        result = await repo.get_page(external_id, 2)
+        missing_page = await repo.get_page(external_id, 999)
+        missing_document = await repo.get_page("unknown-document", 2)
+
+        assert result is not None
+        assert result["document_id"] == external_id
+        assert result["page_no"] == 2
+        assert result["headings"] == ["Tuberculosis", "Treatment"]
+        assert "Treatment protocols" in result["text"]
+
+        assert missing_page is None
+        assert missing_document is None
