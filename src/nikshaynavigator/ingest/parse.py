@@ -44,6 +44,7 @@ class ParsedDoc:
     kind: str
     title: str
     pages: list[ParsedPage]
+    scanned_pages: list[int] = field(default_factory=list)
 
 
 class ParseError(Exception):
@@ -488,6 +489,17 @@ def parse_pdf_pymupdf(
                     reason,
                     f"Only {total_chars} characters extracted.",
                 )
+                # Detect image-based pages with insufficient native text.
+
+            scanned_pages = [
+                page_no
+                for page_no, pdf_page in enumerate(pdf_pages, start=1)
+                if pdf_page.get_images(full=True)
+                and (
+                    len(parsed_pages[page_no - 1].text.strip()) < MIN_CHARS_PER_PAGE
+                    or page_no in ocr_pages
+                )
+            ]
 
             metadata = doc.metadata or {}
 
@@ -496,6 +508,7 @@ def parse_pdf_pymupdf(
                 kind="pdf",
                 title=metadata.get("title") or path.stem,
                 pages=parsed_pages,
+                scanned_pages=scanned_pages,
             )
 
     except ParseError:

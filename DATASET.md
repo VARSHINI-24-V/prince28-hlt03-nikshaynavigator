@@ -58,3 +58,20 @@ Answers TB programme questions for field staff using attributed NTEP guidance.
 
 - Record documents still missing from the target and why.
 - Record blocked, unavailable, superseded or unreadable sources.
+
+## Parsing Coverage
+
+| Metric | Value |
+|---|---:|
+| Total processed documents | 15 |
+| Successfully parsed | 15 |
+| Failed documents | 0 |
+| Parsing coverage | 100% |
+| Pages stored in PostgreSQL | 1,382 |
+
+Coverage formula:
+
+`parsed_documents / (parsed_documents + failed_documents) * 100`
+
+Scanned pages recovered using Tesseract OCR are included
+in successfully parsed documents.

@@ -60,6 +60,19 @@ class FakeRepository:
             None,
         )
 
+    async def get_page(self, external_id: str, page_no: int):
+        """Return a predictable page for API tests."""
+
+        if external_id == "drtb-2025-diagnosis" and page_no == 2:
+            return {
+                "document_id": external_id,
+                "page_no": 2,
+                "headings": ["Diagnosis", "Testing"],
+                "text": "Tuberculosis diagnostic testing details.",
+            }
+
+        return None
+
 
 @pytest.fixture
 def client():
@@ -176,3 +189,23 @@ def test_invalid_sort_field(client):
     response = client.get("/v1/documents?sort_by=invalid&order=asc")
 
     assert response.status_code == 400
+
+
+def test_get_document_page(client):
+    response = client.get("/v1/documents/drtb-2025-diagnosis/pages?page_no=2")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["document_id"] == "drtb-2025-diagnosis"
+    assert data["page_no"] == 2
+    assert data["headings"] == ["Diagnosis", "Testing"]
+    assert "diagnostic testing" in data["text"]
+
+
+def test_document_page_not_found(client):
+    response = client.get("/v1/documents/drtb-2025-diagnosis/pages?page_no=999")
+
+    assert response.status_code == 404
+    assert response.json()["status"] == 404

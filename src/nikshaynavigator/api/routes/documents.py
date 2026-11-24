@@ -93,3 +93,30 @@ async def get_document(
         )
 
     return document
+
+
+@router.get("/{document_id}/pages")
+async def get_document_page(
+    document_id: str,
+    repo: RepositoryDependency,
+    page_no: int = Query(ge=1),
+) -> dict:
+    """Retrieve one parsed page from a document."""
+
+    document = await repo.get(document_id)
+
+    if document is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Document '{document_id}' not found",
+        )
+
+    page = await repo.get_page(document_id, page_no)
+
+    if page is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Page {page_no} not found in document '{document_id}'",
+        )
+
+    return page
