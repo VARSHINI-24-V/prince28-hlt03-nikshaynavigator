@@ -481,3 +481,74 @@ UptimeRobot checks `/health` every five minutes. This periodic traffic helps kee
 - Missing files: 0.
 - Partial files: 0.
 - Initial corpus size: approximately 135.4 MB.
+
+<!-- D07_PARSER_COMPARISON_START -->
+## D07 — Parser comparison
+
+Selection: 10 largest downloaded PDFs by manifest file size.
+Both parsers were tested without OCR for a native-text comparison.
+
+| File | Size (MB) | PyMuPDF pages/chars | pypdf pages/chars |
+|---|---:|---:|---:|
+| 8368587497guidelines-for-pmdt-in-india-1-1be1189b.pdf | 48.24 | 334/857785 | 334/678119 |
+| 1874197613standard-treatment-workflows-e143f46c.pdf | 22.69 | FAILED | FAILED |
+| 281220200400operational-guidelines-for-tb-services-at-hwc-23-5d396131.pdf | 22.67 | 52/73911 | 52/56152 |
+| national-guidance-on-differential-tb-care-final-march-2025-3-29afdcfa.pdf | 18.09 | 105/216182 | 105/170192 |
+| 2239437973guidance-documents-on-community-engagement-under-n-050fda29.pdf | 15.75 | FAILED | FAILED |
+| guidelines-for-programmatic-management-of-tuberculosis-preve-026160ce.pdf | 12.94 | 123/244632 | 123/219432 |
+| 7702334778training-module-on-extrapulmonary-tb-book-24032023-c400daac.pdf | 11.42 | 204/408953 | 204/384613 |
+| guidance-document-nutritional-care-support-for-tb-patients-i-e000b6fa.pdf | 10.49 | 107/231595 | 107/189452 |
+| national-guidelines-for-management-of-dr-tb-27-3-2025-d1711f6b.pdf | 8.64 | 82/187936 | 82/165143 |
+| guidance-document-on-ni-kshay-mitra-initiative-2026-compress-d9a1e68a.pdf | 5.98 | 58/81331 | 58/72047 |
+
+| File | PyMuPDF time (s) | pypdf time (s) | Tables | Verdict |
+|---|---:|---:|---:|---|
+| 8368587497guidelines-for-pmdt-in-india-1-1be1189b.pdf | 45.12 | 7.57 | 146 | PyMuPDF: more text |
+| 1874197613standard-treatment-workflows-e143f46c.pdf | 52.34 | 31.56 | N/A | Manual/OCR required |
+| 281220200400operational-guidelines-for-tb-services-at-hwc-23-5d396131.pdf | 13.66 | 0.51 | 13 | PyMuPDF: more text |
+| national-guidance-on-differential-tb-care-final-march-2025-3-29afdcfa.pdf | 12.59 | 6.50 | 36 | PyMuPDF: more text |
+| 2239437973guidance-documents-on-community-engagement-under-n-050fda29.pdf | 23.86 | 3.95 | N/A | Manual/OCR required |
+| guidelines-for-programmatic-management-of-tuberculosis-preve-026160ce.pdf | 6.95 | 1.31 | 27 | PyMuPDF: more text |
+| 7702334778training-module-on-extrapulmonary-tb-book-24032023-c400daac.pdf | 11.48 | 3.24 | 41 | PyMuPDF: more text |
+| guidance-document-nutritional-care-support-for-tb-patients-i-e000b6fa.pdf | 11.70 | 3.39 | 48 | PyMuPDF: more text |
+| national-guidelines-for-management-of-dr-tb-27-3-2025-d1711f6b.pdf | 7.53 | 2.64 | 40 | PyMuPDF: more text |
+| guidance-document-on-ni-kshay-mitra-initiative-2026-compress-d9a1e68a.pdf | 19.86 | 5.97 | 23 | PyMuPDF: more text |
+
+### Parser errors
+
+- **data/raw/ctd/1874197613standard-treatment-workflows-e143f46c.pdf — pymupdf:** no_text_layer: Only 0 characters extracted.
+- **data/raw/ctd/1874197613standard-treatment-workflows-e143f46c.pdf — pypdf:** no_text_layer: Only 0 characters extracted using pypdf.
+- **data/raw/ctd/2239437973guidance-documents-on-community-engagement-under-n-050fda29.pdf — pymupdf:** no_text_layer: Only 0 characters extracted.
+- **data/raw/ctd/2239437973guidance-documents-on-community-engagement-under-n-050fda29.pdf — pypdf:** no_text_layer: Only 0 characters extracted using pypdf.
+
+<!-- D07_PARSER_COMPARISON_END -->
+
+## D07 — Parsing Corpus Results
+
+### Corpus processing
+- Total manifest documents: 15
+- Successfully parsed: 15
+- Failed documents remaining: 0
+- Total PDF pages: 1,382
+- Extracted tables: 508
+
+### OCR recovery
+- Initial failures: 2
+- Failure reason: no_text_layer
+- Recovered using Tesseract OCR: 2
+- English language: eng
+- OCR parser: pymupdf_ocr
+- Native parser: pymupdf
+
+### Parser comparison
+- Files compared: 10
+- Selection method: largest 10 PDFs by file size
+- Parsers: PyMuPDF and pypdf
+- Detailed results: see D07 Parser Comparison above
+
+### Limitations
+- Corpus contains 1,382 pages against the approximate
+  1,500-page start target.
+- OCR output requires additional quality validation.
+- Heading detection is heuristic and needs citation-level validation.
+- Extracted table counts do not guarantee perfect table structure.
