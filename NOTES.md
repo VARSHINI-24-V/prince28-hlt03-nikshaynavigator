@@ -702,3 +702,95 @@ Groq fallback ping:
 Conclusion:
 Gemini 3.5 Flash-Lite works through the actual NikshayNavigator gateway
 as the primary provider. Groq remains available as fallback.
+
+## Extra Feature – AI Answer Feedback & Error Reporting
+
+### Purpose
+Added a feedback mechanism so users can report whether NikshayNavigator answers
+are helpful and identify problems with generated answers.
+
+### API endpoints
+
+POST /v1/feedback
+- Accepts feedback linked to an LLM request_id.
+- Supports positive and negative feedback.
+- Accepts an optional comment.
+- Requires an issue category for negative feedback.
+- Rejects duplicate feedback for the same request.
+- Accepts feedback only for an existing successful LLM answer.
+
+GET /v1/feedback/summary
+- Returns total feedback count.
+- Returns helpful and not-helpful counts.
+- Returns counts grouped by issue category.
+
+### Feedback categories
+
+- incorrect_information
+- outdated_guideline
+- missing_citation
+- unclear_answer
+- other
+
+### Database implementation
+
+New table: answer_feedback
+
+Migration: 51619edb545f
+
+Fields:
+- id
+- request_id
+- helpful
+- issue_category
+- comment
+- created_at
+
+Database constraints:
+- Unique feedback per request_id.
+- Valid issue category values.
+- Positive feedback cannot contain an issue category.
+- Negative feedback must contain an issue category.
+
+### Validation and error handling
+
+- Unknown or unsuccessful LLM request: HTTP 404.
+- Duplicate feedback: HTTP 409.
+- Invalid feedback payload: HTTP 422.
+- Comment length limited to 1000 characters.
+- Validation error responses exclude submitted input data to avoid
+  unnecessarily exposing potentially sensitive information.
+
+### Testing and verification
+
+Feedback API tests:
+- 8 passed.
+
+Real PostgreSQL feedback integration tests:
+- 4 passed.
+- Verified feedback insertion, unknown request rejection,
+  duplicate feedback prevention and summary calculation.
+
+Complete integration suite:
+- 16 passed.
+
+Complete project test suite:
+- 130 passed.
+
+Code quality:
+- Ruff lint: passed.
+- Ruff formatting: passed.
+
+PostgreSQL integration testing:
+- Used an isolated local PostgreSQL Docker container.
+- Integration fixture created a temporary database.
+- Alembic migrations ran against the temporary database.
+- No production database was used for these integration tests.
+
+### Outcome
+
+NikshayNavigator now supports collecting structured user feedback
+linked to individual successful LLM responses.
+
+This provides a foundation for identifying incorrect information,
+outdated guideline references, missing citations and unclear answers.

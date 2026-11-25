@@ -15,6 +15,9 @@ from nikshaynavigator.api.routes.chat import (
     router as chat_router,
 )
 from nikshaynavigator.api.routes.documents import router as documents_router
+from nikshaynavigator.api.routes.feedback import (
+    router as feedback_router,
+)
 from nikshaynavigator.api.routes.health import router as health_router
 from nikshaynavigator.api.routes.pool_metrics import (
     router as pool_metrics_router,
@@ -80,6 +83,7 @@ def create_app() -> FastAPI:
     app.include_router(documents_router)
     app.include_router(pool_metrics_router)
     app.include_router(chat_router, prefix="/v1")
+    app.include_router(feedback_router, prefix="/v1")
 
     return app
 

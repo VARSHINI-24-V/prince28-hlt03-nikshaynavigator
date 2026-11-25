@@ -150,3 +150,58 @@ class LlmCall(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), index=True
     )
+
+
+class AnswerFeedback(Base):
+    """User feedback about one NikshayNavigator answer."""
+
+    __tablename__ = "answer_feedback"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    request_id: Mapped[str] = mapped_column(
+        String(64),
+        nullable=False,
+    )
+
+    helpful: Mapped[bool] = mapped_column(nullable=False)
+
+    issue_category: Mapped[str | None] = mapped_column(
+        String(40),
+        nullable=True,
+    )
+
+    comment: Mapped[str | None] = mapped_column(Text)
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        index=True,
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "request_id",
+            name="uq_answer_feedback_request_id",
+        ),
+        CheckConstraint(
+            """
+            issue_category IS NULL OR issue_category IN (
+                'incorrect_information',
+                'outdated_guideline',
+                'missing_citation',
+                'unclear_answer',
+                'other'
+            )
+            """,
+            name="valid_feedback_category",
+        ),
+        CheckConstraint(
+            """
+            (helpful = true AND issue_category IS NULL)
+            OR
+            (helpful = false AND issue_category IS NOT NULL)
+            """,
+            name="feedback_category_matches_rating",
+        ),
+    )

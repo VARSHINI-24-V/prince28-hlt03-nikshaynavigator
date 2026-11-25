@@ -8,6 +8,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from nikshaynavigator.db.feedback import AnswerFeedbackRepository
 from nikshaynavigator.db.llm_calls import LlmCallRepository
 from nikshaynavigator.db.repository import DocumentRepository
 from nikshaynavigator.llm.gateway import LLMGateway
@@ -52,35 +53,18 @@ async def get_usage_repo(
     return LlmCallRepository(session)
 
 
-GatewayDep = Annotated[
-    LLMGateway,
-    Depends(get_gateway),
-]
-
-UsageDep = Annotated[
-    LlmCallRepository,
-    Depends(get_usage_repo),
-]
-
-
-async def get_gateway(request: Request) -> LLMGateway:
-    """Provide the application LLM gateway."""
-    return request.app.state.gateway
-
-
-async def get_usage_repo(
+async def get_feedback_repo(
     session: Annotated[AsyncSession, Depends(get_session)],
-) -> LlmCallRepository:
-    """Provide the LLM usage repository."""
-    return LlmCallRepository(session)
+) -> AnswerFeedbackRepository:
+    """Provide the answer feedback repository."""
+    return AnswerFeedbackRepository(session)
 
 
-GatewayDep = Annotated[
-    LLMGateway,
-    Depends(get_gateway),
-]
+GatewayDep = Annotated[LLMGateway, Depends(get_gateway)]
 
-UsageDep = Annotated[
-    LlmCallRepository,
-    Depends(get_usage_repo),
+UsageDep = Annotated[LlmCallRepository, Depends(get_usage_repo)]
+
+FeedbackDep = Annotated[
+    AnswerFeedbackRepository,
+    Depends(get_feedback_repo),
 ]
