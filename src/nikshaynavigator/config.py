@@ -18,6 +18,22 @@ class Settings(BaseSettings):
     app_version: str = "0.1.0"
     # Commit SHA used to identify the deployed application version.
     git_sha: str = "dev"
+
+    # LLM gateway (Day 8)
+    gemini_api_key: str = ""
+    groq_api_key: str = ""
+
+    llm_primary_model: str = "gemini-3.5-flash-lite"
+    llm_fallback_model: str = "openai/gpt-oss-20b"
+
+    llm_primary_base_url: str = (
+        "https://generativelanguage.googleapis.com/v1beta/openai"
+    )
+    llm_fallback_base_url: str = "https://api.groq.com/openai/v1"
+
+    llm_timeout_seconds: float = 30.0
+    usd_inr: float = 95.0
+    prompts_dir: Path = Path("prompts")
     app_env: Literal["local", "ci", "production"]
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     data_file: Path = Path("data/sample_records.json")

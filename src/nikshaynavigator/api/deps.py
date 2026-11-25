@@ -8,7 +8,9 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from nikshaynavigator.db.llm_calls import LlmCallRepository
 from nikshaynavigator.db.repository import DocumentRepository
+from nikshaynavigator.llm.gateway import LLMGateway
 
 
 async def get_session(request: Request) -> AsyncIterator[AsyncSession]:
@@ -36,3 +38,49 @@ async def check_db(request: Request) -> bool:
         return True
     except SQLAlchemyError:
         return False
+
+
+async def get_gateway(request: Request) -> LLMGateway:
+    """Provide the application LLM gateway."""
+    return request.app.state.gateway
+
+
+async def get_usage_repo(
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> LlmCallRepository:
+    """Provide the LLM usage repository."""
+    return LlmCallRepository(session)
+
+
+GatewayDep = Annotated[
+    LLMGateway,
+    Depends(get_gateway),
+]
+
+UsageDep = Annotated[
+    LlmCallRepository,
+    Depends(get_usage_repo),
+]
+
+
+async def get_gateway(request: Request) -> LLMGateway:
+    """Provide the application LLM gateway."""
+    return request.app.state.gateway
+
+
+async def get_usage_repo(
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> LlmCallRepository:
+    """Provide the LLM usage repository."""
+    return LlmCallRepository(session)
+
+
+GatewayDep = Annotated[
+    LLMGateway,
+    Depends(get_gateway),
+]
+
+UsageDep = Annotated[
+    LlmCallRepository,
+    Depends(get_usage_repo),
+]

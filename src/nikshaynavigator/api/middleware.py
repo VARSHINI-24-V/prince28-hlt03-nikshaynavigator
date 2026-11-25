@@ -4,6 +4,8 @@ import uuid
 
 from fastapi import Request
 
+from nikshaynavigator.logging_setup import request_id_ctx
+
 logger = logging.getLogger(__name__)
 
 
@@ -14,7 +16,11 @@ async def request_tracking_middleware(
     request_id = str(uuid.uuid4())
     start_time = time.perf_counter()
 
-    response = await call_next(request)
+    token = request_id_ctx.set(request_id)
+    try:
+        response = await call_next(request)
+    finally:
+        request_id_ctx.reset(token)
 
     duration_ms = (time.perf_counter() - start_time) * 1000
 
