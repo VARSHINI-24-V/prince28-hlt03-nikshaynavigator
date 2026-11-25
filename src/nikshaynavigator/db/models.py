@@ -9,6 +9,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     MetaData,
+    Numeric,
     String,
     Text,
     UniqueConstraint,
@@ -125,4 +126,82 @@ class ParseFailure(Base):
         DateTime(timezone=True),
         server_default=func.now(),
         onupdate=func.now(),
+    )
+
+
+class LlmCall(Base):
+    """One row per call to a language model: who answered, how long, how much."""
+
+    __tablename__ = "llm_calls"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    request_id: Mapped[str] = mapped_column(String(64), index=True)
+    provider: Mapped[str] = mapped_column(String(40))
+    model: Mapped[str] = mapped_column(String(80))
+    purpose: Mapped[str] = mapped_column(String(40), server_default="chat")
+    prompt_version: Mapped[str] = mapped_column(String(80), server_default="")
+    status: Mapped[str] = mapped_column(String(10))
+    error: Mapped[str] = mapped_column(Text, server_default="")
+    tokens_in: Mapped[int] = mapped_column(server_default="0")
+    tokens_out: Mapped[int] = mapped_column(server_default="0")
+    latency_ms: Mapped[int] = mapped_column(server_default="0")
+    cost_inr: Mapped[float] = mapped_column(Numeric(12, 6), server_default="0")
+    fallback_used: Mapped[bool] = mapped_column(server_default="false")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), index=True
+    )
+
+
+class AnswerFeedback(Base):
+    """User feedback about one NikshayNavigator answer."""
+
+    __tablename__ = "answer_feedback"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    request_id: Mapped[str] = mapped_column(
+        String(64),
+        nullable=False,
+    )
+
+    helpful: Mapped[bool] = mapped_column(nullable=False)
+
+    issue_category: Mapped[str | None] = mapped_column(
+        String(40),
+        nullable=True,
+    )
+
+    comment: Mapped[str | None] = mapped_column(Text)
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        index=True,
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "request_id",
+            name="uq_answer_feedback_request_id",
+        ),
+        CheckConstraint(
+            """
+            issue_category IS NULL OR issue_category IN (
+                'incorrect_information',
+                'outdated_guideline',
+                'missing_citation',
+                'unclear_answer',
+                'other'
+            )
+            """,
+            name="valid_feedback_category",
+        ),
+        CheckConstraint(
+            """
+            (helpful = true AND issue_category IS NULL)
+            OR
+            (helpful = false AND issue_category IS NOT NULL)
+            """,
+            name="feedback_category_matches_rating",
+        ),
     )

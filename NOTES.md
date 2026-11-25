@@ -552,3 +552,245 @@ Both parsers were tested without OCR for a native-text comparison.
 - OCR output requires additional quality validation.
 - Heading detection is heuristic and needs citation-level validation.
 - Extracted table counts do not guarantee perfect table structure.
+
+### D08 · First real LLM request
+
+- Primary: Gemini
+- Fallback: Groq (openai/gpt-oss-20b)
+- First question: NTEP initial diagnostic test for presumptive TB
+- Provider used: Groq
+- First words after: 9.78 seconds
+- Total response: 10.26 seconds
+- Tokens in: 248
+- Tokens out: 253
+- Estimated cost: Rs 0.008977
+- Attempts: 1 on successful provider
+- Fallback: YES
+
+### Answer quality observation
+
+- The model answered using general knowledge, not our NTEP documents.
+- Its diagnostic recommendation needs verification against the applicable NTEP algorithm.
+- This demonstrates why retrieval and source citations are necessary.
+
+### Tokens: English against Tamil
+
+| Message | tokens in |
+|---|---:|
+| "Hi" (baseline) | 233 |
+| The English sentence | 241 |
+| The same sentence in Tamil | 255 |
+
+- English message tokens: 8
+- Tamil message tokens: 22
+- The Tamil message needs about 2.75 times the tokens of the English one.
+- Tamil refund question was declined as outside NikshayNavigator scope.
+
+### What the model does without my documents
+
+- Patient Murugan dose question:
+  - Admitted it cannot access individual patient records.
+  - Directed user to medication log or healthcare team.
+
+- Off-topic question (2011 Cricket World Cup):
+  - Declined in one sentence.
+  - Said it was outside NikshayNavigator scope.
+
+- Both requests were answered by Groq fallback.
+
+### Repeated answer consistency experiment
+
+Question:
+What diagnostic test does NTEP recommend first for a presumptive TB patient?
+
+Provider: Groq fallback
+Model: openai/gpt-oss-20b
+
+Three repeated runs produced inconsistent answers:
+- Run 1: Sputum smear microscopy first.
+- Run 2: Sputum smear microscopy first.
+- Run 3: Xpert MTB/RIF / Ultra first.
+
+All three requests used fallback=YES.
+
+Official-source verification:
+- 2026 TB Mukt Bharat Abhiyaan: 100% upfront NAAT for presumptive TB.
+- Sputum microscopy is specified for follow-up tests.
+- 2025 NTEP DR-TB guidelines also describe upfront molecular testing.
+
+Conclusion:
+The model generated contradictory and outdated diagnostic information.
+Without retrieval and source citations, its answers must not be treated
+as verified NTEP guidance.
+
+### Normal Gemini availability test
+
+- Restored primary model: gemini-3.8-flash
+- Gemini returned HTTP 503 due to temporary high demand.
+- Gateway successfully fell back to Groq.
+- Groq returned HTTP 200.
+- Both provider records had the same non-empty request_id.
+
+Latest request metrics:
+- First words: 6.67 seconds
+- Total time: 7.23 seconds
+- Input tokens: 248
+- Output tokens: 275
+- Estimated cost: Rs 0.009604
+
+Conclusion:
+The fallback works even when Gemini is temporarily unavailable.
+Request ID correlation is now verified in Postgres.
+
+### Circuit breaker experiment
+
+Primary model deliberately changed to gemini-no-such-model.
+
+- Request 1: Gemini HTTP 404, Groq fallback succeeded.
+- Request 2: Gemini HTTP 404, Groq fallback succeeded.
+- Request 3: Gemini HTTP 404, circuit breaker opened.
+- Request 4: Gemini was skipped; Groq answered successfully.
+- After 30-second cooldown: half-open probe called Gemini again.
+- Gemini returned HTTP 404; Groq fallback succeeded.
+- Circuit breaker reopened after the failed probe.
+
+Restored the original primary model:
+gemini-3.8-flash
+
+### Request ID correlation fix
+
+- Removed duplicate ContextVar declaration from gateway.py.
+- Captured request ID at the beginning of generate() and stream().
+- Passed the captured ID explicitly to the call recorder.
+- Added a streaming regression test.
+- Verified both Gemini and Groq database records share the same non-empty request_id.
+
+### Final verification
+
+- Unit tests: 106 passed.
+- Ruff lint: passed.
+- Ruff formatting: 65 files already formatted.
+- Dockerfile: prompts copied into builder and runtime stages.
+
+### Gemini alternative model verification
+
+Previous primary model: gemini-3.8-flash
+- Returned HTTP 503 due to temporary high demand.
+
+New primary model: gemini-3.5-flash-lite
+
+Direct API ping:
+- Gemini: successful pong in 3119 ms.
+- Input tokens: 6
+- Output tokens: 1.
+
+Gateway integration test:
+- Question: What is Nikshay Poshan Yojana?
+- Provider: Gemini
+- Model: gemini-3.5-flash-lite
+- First words: 3.74 seconds
+- Total response: 7.27 seconds
+- Input tokens: 178
+- Output tokens: 78
+- Estimated cost: Rs 0.023598
+- Attempts: 1
+- Fallback: NO
+
+Groq fallback ping:
+- Successful pong in 1180 ms.
+
+Conclusion:
+Gemini 3.5 Flash-Lite works through the actual NikshayNavigator gateway
+as the primary provider. Groq remains available as fallback.
+
+## Extra Feature – AI Answer Feedback & Error Reporting
+
+### Purpose
+Added a feedback mechanism so users can report whether NikshayNavigator answers
+are helpful and identify problems with generated answers.
+
+### API endpoints
+
+POST /v1/feedback
+- Accepts feedback linked to an LLM request_id.
+- Supports positive and negative feedback.
+- Accepts an optional comment.
+- Requires an issue category for negative feedback.
+- Rejects duplicate feedback for the same request.
+- Accepts feedback only for an existing successful LLM answer.
+
+GET /v1/feedback/summary
+- Returns total feedback count.
+- Returns helpful and not-helpful counts.
+- Returns counts grouped by issue category.
+
+### Feedback categories
+
+- incorrect_information
+- outdated_guideline
+- missing_citation
+- unclear_answer
+- other
+
+### Database implementation
+
+New table: answer_feedback
+
+Migration: 51619edb545f
+
+Fields:
+- id
+- request_id
+- helpful
+- issue_category
+- comment
+- created_at
+
+Database constraints:
+- Unique feedback per request_id.
+- Valid issue category values.
+- Positive feedback cannot contain an issue category.
+- Negative feedback must contain an issue category.
+
+### Validation and error handling
+
+- Unknown or unsuccessful LLM request: HTTP 404.
+- Duplicate feedback: HTTP 409.
+- Invalid feedback payload: HTTP 422.
+- Comment length limited to 1000 characters.
+- Validation error responses exclude submitted input data to avoid
+  unnecessarily exposing potentially sensitive information.
+
+### Testing and verification
+
+Feedback API tests:
+- 8 passed.
+
+Real PostgreSQL feedback integration tests:
+- 4 passed.
+- Verified feedback insertion, unknown request rejection,
+  duplicate feedback prevention and summary calculation.
+
+Complete integration suite:
+- 16 passed.
+
+Complete project test suite:
+- 130 passed.
+
+Code quality:
+- Ruff lint: passed.
+- Ruff formatting: passed.
+
+PostgreSQL integration testing:
+- Used an isolated local PostgreSQL Docker container.
+- Integration fixture created a temporary database.
+- Alembic migrations ran against the temporary database.
+- No production database was used for these integration tests.
+
+### Outcome
+
+NikshayNavigator now supports collecting structured user feedback
+linked to individual successful LLM responses.
+
+This provides a foundation for identifying incorrect information,
+outdated guideline references, missing citations and unclear answers.

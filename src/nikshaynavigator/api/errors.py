@@ -33,13 +33,24 @@ async def validation_exception_handler(
     request: Request,
     exc: RequestValidationError,
 ) -> JSONResponse:
+    """Return JSON-safe validation errors without exposing submitted data."""
+
+    errors = [
+        {
+            "type": error.get("type", "value_error"),
+            "loc": list(error.get("loc", ())),
+            "msg": error.get("msg", "Invalid input"),
+        }
+        for error in exc.errors()
+    ]
+
     return JSONResponse(
         status_code=422,
         content={
             "type": "about:blank",
             "title": "Unprocessable Content",
             "status": 422,
-            "detail": exc.errors(),
+            "detail": errors,
             "instance": request.url.path,
         },
         media_type="application/problem+json",
