@@ -41,6 +41,19 @@ A healthcare field professional who follows approximately 120 TB patients and an
 
 These are project goals; retrieval-augmented, citation-aware answer generation and the full evaluation target remain under development.
 
+## 🛡️ Implemented Request Routing
+
+The `/v1/chat` endpoint now runs the versioned `classify_v4` question classifier before answer generation:
+
+- `docs`: continue to the existing answer-generation path.
+- `personal`: return a fixed privacy-safe response without attempting to access individual patient records.
+- `off_topic`: return a fixed response explaining the assistant's NTEP scope.
+- Invalid classifier output fails closed with HTTP 502; classifier unavailability returns HTTP 503.
+- Classification label, prompt version and usage metadata are included in supported response paths.
+- Both streaming SSE and non-streaming chat responses are supported.
+
+**Important limitation:** This router is an input-scope and privacy guardrail, not clinical validation. The `docs` path is not yet retrieval-grounded in the corpus and does not yet provide verified NTEP source citations. RAG retrieval, citation-aware answer generation and guideline-version conflict handling remain under development. Do not treat generated answers as verified clinical guidance.
+
 ## 📚 Data Sources
 
 Official government sources:
