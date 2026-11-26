@@ -141,7 +141,13 @@ async def extract(
 
         try:
             data = parse_json(result.text)
-            output.record = schema.model_validate(data)
+            record = schema.model_validate(data)
+
+            # Semantic validation: the extracted year must exist in source text.
+            if record.year is not None and str(record.year) not in text:
+                raise ValueError(f"year {record.year} is not in the document")
+
+            output.record = record
             return output
 
         except (ValueError, TypeError, ValidationError) as error:
