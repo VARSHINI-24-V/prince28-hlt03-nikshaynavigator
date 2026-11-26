@@ -944,18 +944,43 @@ Coverage includes:
 
 Classifier unit tests: 25 passed.
 
-## Remaining work
+## Day 9 implementation status
 
-- Build the strict Pydantic document metadata contract.
-- Implement metadata extraction prompts.
-- Implement extraction, validation and bounded repair.
-- Run extraction on five trial documents and manually verify the results.
-- Process the corpus and record successes, failures and repair attempts.
-- Add metadata extraction tests and integration coverage.
-- Inspect the 43 remaining empty-text pages.
-- Decide which classifier prompt version to use after evaluating reliability and cost requirements.
-- Integrate the classifier into the chat route only after its behaviour is tested.
+### Completed implementation
+- Strict Pydantic `DocMeta` contract with bounded fields and validation.
+- Versioned metadata extraction prompts, extraction, validation and bounded repair.
+- All 15 parsed corpus documents processed with `extract_v2`; zero pending and zero failed in the recorded final run.
+- Metadata extraction unit and integration coverage.
+- Four classifier prompt versions benchmarked against the 20-question set; `classify_v4` selected for the mixed-intent handling improvement.
+- Classifier integrated into `/v1/chat` in the separately documented Question Router Integration section below.
 
+### Manual metadata quality checks
+Five source-level metadata records have now been checked:
+
+| Record | Source-level comparison | Result / limitation |
+|---|---|---|
+| National Guidelines for Management of DR-TB 2025 | Cover title and publication year | Previously checked; title/year match |
+| Guidelines for Programmatic Management of DR-TB 2021 | Cover title and publication year | Previously checked; title/year match |
+| Frequently Asked Questions on PMTPT 2021 | Cover title and publication year | Previously checked; title/year match |
+| National Guidance on Differentiated TB Care 2025 | Official CTD PDF cover (March 2025) and opening messages compared with extracted title, year, document kind, language, topic tags and populations | Title/year and the listed healthcare-provider and TB-patient groups align with the source. The five topic tags reflect the opening message. The empty recommendation list may be an under-extraction: the opening message includes programme actions on referral coordination, service integration, diagnostics and capacity-building. Flag for later re-extraction with a larger text window. |
+| Guidance Document on Ni-kshay Mitra Initiative 2026 | Official CTD PDF cover/title pages compared with extracted title, year, document kind, language and document name | Exact title and 2026 year match. This check validates document identity only: the extractor reads the first three parsed pages, which are cover/title pages here. Topic/summary depth remains low-confidence, and empty population, recommendation and supersedes lists are not judged against substantive sections later in the full PDF. |
+
+The five-record manual inspection target is met. This is a source-level spot check, not a complete factual audit of every extracted field or every page in the two full documents. The Differentiated TB Care recommendation field is an identified extraction-quality follow-up, not a reason to overwrite source-supported data manually.
+
+Pydantic validation confirms schema compliance; it does not by itself establish factual correctness.
+
+### Separate corpus-quality follow-up
+- The 43 empty-text page records across 8 PDFs were structurally and visually audited; see the Empty-page audit section below.
+- Further OCR and visual/vector extraction work remains a separate corpus-quality improvement, not a blocker to the completed metadata-extraction implementation.
+
+### Production endpoint smoke coverage
+The deployment smoke test in `scripts/smoke.py` checks:
+- `GET /health` and `GET /ready`.
+- `GET /v1/documents?limit=1`.
+- `GET /v1/documents?doc_kind=guideline&limit=3`, including the returned filter and document kinds.
+- `GET /v1/usage`, including response shape and non-negative call/cost totals.
+
+These checks run after production deployment through `.github/workflows/cd.yml`. A successful live result must be taken from the corresponding GitHub Actions CD run; a code-level test alone is not a production smoke-test result.
 
 ## Day 9 — Metadata Extraction Results
 
