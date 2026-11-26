@@ -944,18 +944,24 @@ Coverage includes:
 
 Classifier unit tests: 25 passed.
 
-## Remaining work
+## Day 9 implementation status
 
-- Build the strict Pydantic document metadata contract.
-- Implement metadata extraction prompts.
-- Implement extraction, validation and bounded repair.
-- Run extraction on five trial documents and manually verify the results.
-- Process the corpus and record successes, failures and repair attempts.
-- Add metadata extraction tests and integration coverage.
-- Inspect the 43 remaining empty-text pages.
-- Decide which classifier prompt version to use after evaluating reliability and cost requirements.
-- Integrate the classifier into the chat route only after its behaviour is tested.
+### Completed implementation
+- Strict Pydantic `DocMeta` contract with bounded fields and validation.
+- Versioned metadata extraction prompts, extraction, validation and bounded repair.
+- All 15 parsed corpus documents processed with `extract_v2`; zero pending and zero failed in the recorded final run.
+- Metadata extraction unit and integration coverage.
+- Four classifier prompt versions benchmarked against the 20-question set; `classify_v4` selected for the mixed-intent handling improvement.
+- Classifier integrated into `/v1/chat` in the separately documented Question Router Integration section below.
 
+### Manual metadata quality checks
+- Source-level spot checks currently recorded: DR-TB 2025, DR-TB 2021 and PMTPT FAQ (3 records).
+- The Day 9 target is at least five manually inspected records. Two additional extracted records still need a source-to-metadata comparison and a note here before that subtask can be marked complete.
+- Pydantic validation confirms schema compliance; it does not by itself establish factual correctness.
+
+### Separate corpus-quality follow-up
+- The 43 empty-text page records across 8 PDFs were structurally and visually audited; see the Empty-page audit section below.
+- Further OCR and visual/vector extraction work remains a separate corpus-quality improvement, not a blocker to the completed metadata-extraction implementation.
 
 ## Day 9 — Metadata Extraction Results
 
