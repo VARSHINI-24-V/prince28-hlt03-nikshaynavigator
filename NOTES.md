@@ -1035,3 +1035,51 @@ Limitations and decisions:
 - OCR experiments were read-only and did not overwrite database page records.
 - Existing parsed data was preserved. No bulk OCR retry was performed based solely on visual heuristics.
 - Further visual/vector extraction work remains a corpus-quality improvement task.
+
+
+
+## Extra Feature – Question Router Integration
+
+### Purpose
+Integrated the existing versioned question classifier into the `/v1/chat` endpoint to prevent unsupported or private-data questions from reaching answer generation.
+
+### Routing behaviour
+- `docs`: Continue to the existing LLM answer-generation flow.
+- `personal`: Return a fixed response explaining that individual patient records and live treatment status cannot be accessed.
+- `off_topic`: Return a fixed response explaining NikshayNavigator's scope.
+- Invalid classifier output: Fail closed with HTTP 502.
+- Classifier unavailable: Return HTTP 503.
+
+### LLM efficiency and observability
+- Uses `classify_v4` before answer generation.
+- Personal and off-topic requests require only one LLM call.
+- Documentation questions use classification followed by answer generation.
+- Classification label, prompt version and usage metadata are included in responses.
+- Supports both streaming SSE and non-streaming responses.
+
+### Semantic Year Validation
+
+Added source-level validation to metadata extraction:
+- Rejects an extracted year when that year does not appear in the supplied document text.
+- Sends the validation error back to the LLM for correction.
+- Added a regression test verifying rejection and successful retry.
+
+### Prompt Evaluation Improvement
+
+Enhanced `scripts/compare_prompts.py` with a confusion matrix:
+- Rows represent actual labels.
+- Columns represent predicted labels.
+- Includes an INVALID output category.
+- Helps identify classification errors by category.
+
+### Verification
+
+- Classification prompt leakage checks: PASS for all four versions.
+- Benchmark dataset: 20 questions.
+- All four cached benchmark results: 20/20 correct.
+- Invalid outputs: 0.
+- Confusion matrix verified.
+- Chat API tests: 11 passed.
+- Full test suite: 205 passed, 19 skipped.
+- Ruff lint: passed.
+- Ruff formatting: passed.
