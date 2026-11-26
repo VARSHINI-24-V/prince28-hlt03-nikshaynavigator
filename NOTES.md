@@ -963,6 +963,15 @@ Classifier unit tests: 25 passed.
 - The 43 empty-text page records across 8 PDFs were structurally and visually audited; see the Empty-page audit section below.
 - Further OCR and visual/vector extraction work remains a separate corpus-quality improvement, not a blocker to the completed metadata-extraction implementation.
 
+### Production endpoint smoke coverage
+The deployment smoke test in `scripts/smoke.py` checks:
+- `GET /health` and `GET /ready`.
+- `GET /v1/documents?limit=1`.
+- `GET /v1/documents?doc_kind=guideline&limit=3`, including the returned filter and document kinds.
+- `GET /v1/usage`, including response shape and non-negative call/cost totals.
+
+These checks run after production deployment through `.github/workflows/cd.yml`. A successful live result must be taken from the corresponding GitHub Actions CD run; a code-level test alone is not a production smoke-test result.
+
 ## Day 9 — Metadata Extraction Results
 
 ### Extraction completion
