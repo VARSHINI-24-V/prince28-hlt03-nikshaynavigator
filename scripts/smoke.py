@@ -85,6 +85,56 @@ def run_smoke_test(base_url: str, expected_version: str | None) -> bool:
 
     print(f"ok   /v1/documents?limit=1 -> 200 (total={total}, returned={len(items)})")
 
+    guidelines = get_json(
+        base_url,
+        "/v1/documents?doc_kind=guideline&limit=3",
+    )
+    guideline_items = guidelines.get("items")
+    guideline_total = guidelines.get("total")
+    guideline_filters = guidelines.get("filters")
+
+    if (
+        not isinstance(guideline_items, list)
+        or not isinstance(guideline_total, int)
+        or guideline_filters != {"doc_kind": "guideline"}
+        or len(guideline_items) > 3
+    ):
+        raise SmokeTestError(
+            "/v1/documents guideline filter returned an invalid response"
+        )
+
+    if any(
+        not isinstance(item, dict) or item.get("doc_kind") != "guideline"
+        for item in guideline_items
+    ):
+        raise SmokeTestError(
+            "/v1/documents guideline filter returned a non-guideline document"
+        )
+
+    print(
+        "ok   /v1/documents?doc_kind=guideline&limit=3 -> 200 "
+        f"(total={guideline_total}, returned={len(guideline_items)})"
+    )
+
+    usage = get_json(base_url, "/v1/usage")
+    usage_days = usage.get("days")
+    usage_calls = usage.get("calls")
+    usage_cost = usage.get("total_cost_inr")
+
+    if (
+        not isinstance(usage_days, list)
+        or not isinstance(usage_calls, int)
+        or usage_calls < 0
+        or not isinstance(usage_cost, (int, float))
+        or usage_cost < 0
+    ):
+        raise SmokeTestError("/v1/usage returned an invalid response")
+
+    print(
+        f"ok   /v1/usage -> 200 (calls={usage_calls}, "
+        f"total_cost_inr={usage_cost})"
+    )
+
     return True
 
 
