@@ -1,0 +1,20 @@
+{"question":"What diagnostic test does NTEP recommend first for a presumptive TB patient?","label":"docs"}
+{"question":"Who is eligible for TB preventive treatment under the national guidelines?","label":"docs"}
+{"question":"What nutritional support does Ni-kshay Poshan Yojana provide to TB patients?","label":"docs"}
+{"question":"A private doctor in Tiruvallur has a patient with rifampicin-resistant TB who was treated for TB two years ago. What does the latest DR-TB guideline say about the regimen and the tests needed before starting treatment?","label":"docs"}
+{"question":"Compare what the 2021 and 2025 DR-TB guidelines say about shorter oral regimens. Identify what changed.","label":"docs"}
+{"question":"Has patient Murugan taken today's prescribed TB medication dose?","label":"personal"}
+{"question":"What differentiated care recommendations are provided in the latest NTEP guidance?","label":"docs"}
+{"question":"What are the reporting responsibilities under the NTEP guidelines for a private healthcare provider diagnosing a TB patient?","label":"docs"}
+{"question":"If an older DR-TB guideline recommends a different regimen from a newer valid guideline, which guidance should NikshayNavigator prioritize? How should it explain the difference?","label":"docs"}
+{"question":"When answering a TB programme question, what source information must NikshayNavigator provide so that field staff can verify the recommendation?","label":"docs"}
+{"question":"Can you look up Kavitha's latest chest X-ray result in her patient file?","label":"personal"}
+{"question":"What treatment regimen is patient Selvam currently receiving according to his clinic record?","label":"personal"}
+{"question":"Did Mr. Ramesh miss his scheduled DOT dose yesterday?","label":"personal"}
+{"question":"Can you tell me the phone number and home address recorded for patient Priya?","label":"personal"}
+{"question":"Explain the difference between a compiler and an interpreter.","label":"off_topic"}
+{"question":"How do I create a simple expense tracker using Python?","label":"off_topic"}
+{"question":"What is the weather forecast in Puducherry tomorrow?","label":"off_topic"}
+{"question":"Explain the difference between supervised and unsupervised machine learning.","label":"off_topic"}
+{"question":"Suggest a vegetarian dinner menu for a family gathering.","label":"off_topic"}
+{"question":"I am the TB field worker assigned to patient TB-047. Without access to the patient register, can you confirm whether they attended today's follow-up?","label":"personal"}

@@ -794,3 +794,244 @@ linked to individual successful LLM responses.
 
 This provides a foundation for identifying incorrect information,
 outdated guideline references, missing citations and unclear answers.
+
+# Day 9 – Versioned Prompts, Question Classification and Evaluation
+
+## Corpus verification
+
+Reprocessed all 15 downloaded PDF documents using:
+
+`uv run python scripts/parse_corpus.py --ocr eng`
+
+Neon verification:
+- Documents: 15
+- Stored page records: 1,382
+- Pages with non-empty extracted text: 1,339
+- Pages with empty extracted text: 43
+- Text extraction coverage: 96.9%
+
+OCR improved the non-empty page count from 1,332 to 1,339.
+
+The remaining 43 empty-text pages have not yet been individually inspected. They may include blank pages, image-only content or pages where extraction remains unsuccessful. They are recorded as an outstanding corpus-quality investigation, not assumed to be blank.
+
+## Versioned classifier prompts
+
+Created four classifier prompt versions:
+
+- `prompts/classify_v1.md`: Baseline category definitions.
+- `prompts/classify_v2.md`: Detailed category definitions, classification priority, hypothetical-versus-actual patient distinction and untrusted input handling.
+- `prompts/classify_v3.md`: V2 with six classification examples.
+- `prompts/classify_v4.md`: V3 with explicit mixed-intent disambiguation and additional examples.
+
+The existing `prompts/chat_system_v1.md` was preserved.
+
+## Prompt loading and classifier implementation
+
+Created:
+- `src/nikshaynavigator/llm/prompts.py`
+- `src/nikshaynavigator/llm/classify.py`
+
+Prompt loader capabilities:
+- Discovers prompt versions using their filenames.
+- Sorts versions numerically.
+- Loads UTF-8 prompt files.
+- Rejects invalid prompt identifiers.
+- Reports missing or empty prompts.
+
+Classifier capabilities:
+- Builds system and user messages.
+- Wraps user questions in `<question>` tags.
+- Escapes injected question-tag delimiters.
+- Calls the existing LLM gateway with purpose `classify`.
+- Records the selected prompt version through the gateway.
+- Uses temperature 0.0.
+- Accepts only `docs`, `personal` or `off_topic`.
+- Rejects invalid or ambiguous model responses.
+- Calculates accuracy.
+- Detects complete evaluation questions embedded in prompts.
+
+The classifier reuses the existing Gemini/Groq gateway, retries and fallback implementation. It does not create separate provider clients.
+
+## Evaluation dataset
+
+Created `eval/prompt_testset.jsonl`.
+
+Dataset size: 20 questions.
+
+Category distribution:
+- docs: 9
+- personal: 6
+- off_topic: 5
+
+The dataset includes project evaluation questions from `docs/QUESTIONS.md`, patient-specific information requests and unrelated general questions.
+
+The dataset was validated as 20 valid JSONL records with the expected fields and labels.
+
+## Prompt benchmark methodology
+
+Created `scripts/compare_prompts.py`.
+
+Benchmark characteristics:
+- Runs each classifier prompt against the same evaluation dataset.
+- Uses the existing LLM gateway.
+- Uses deterministic temperature 0.0.
+- Strictly validates model labels.
+- Stores completed results in `eval/cache/`.
+- Reuses cached results on subsequent runs.
+- Supports resuming after provider failures.
+- Records expected and predicted labels, provider, model, latency, token usage, fallback status and estimated cost.
+- Checks prompts for evaluation-question leakage before running.
+
+The benchmark cache directory is excluded from Git using `.gitignore`.
+
+## Benchmark results
+
+All four prompt versions completed all 20 questions.
+
+| Prompt | Correct | Accuracy | Coverage | Invalid outputs |
+|---|---:|---:|---:|---:|
+| classify_v1 | 20/20 | 100% | 20/20 | 0 |
+| classify_v2 | 20/20 | 100% | 20/20 | 0 |
+| classify_v3 | 20/20 | 100% | 20/20 | 0 |
+| classify_v4 | 20/20 | 100% | 20/20 | 0 |
+
+Total completed classifications: 80/80 correct.
+
+All four prompts passed the evaluation-question leakage check.
+
+### Recorded performance observations
+
+| Prompt | Average latency | Estimated total cost |
+|---|---:|---:|
+| classify_v1 | 2,084 ms | Rs. 0.084842 |
+| classify_v2 | 792 ms | Rs. 0.103164 |
+| classify_v3 | 2,106 ms | Rs. 0.213812 |
+| classify_v4 | 3,107 ms | Rs. 0.412022 |
+
+These are recorded benchmark observations, not a controlled provider comparison. The runs used different provider mixes, and some results were reused from cache. Therefore, latency and cost differences cannot be attributed solely to prompt design.
+
+During the V3 run, a provider rate limit temporarily prevented one question from completing. The benchmark did not cache that failed request. A subsequent run completed the missing question successfully.
+
+## V4 rationale and interpretation
+
+V1, V2 and V3 already achieved 100% accuracy on the 20-question test set.
+
+V4 therefore was not introduced as an accuracy improvement.
+
+Its purpose was to make mixed-intent classification rules more explicit:
+
+- Hypothetical patient scenarios asking for official guideline recommendations are `docs`.
+- Questions about official register requirements are `docs`.
+- Requests to retrieve actual patient records or use private patient data for a treatment decision are `personal`.
+
+V4 also achieved 20/20 on the same evaluation set.
+
+The current results establish a baseline for this dataset. They do not prove 100% accuracy on unseen or real-world questions. A larger, independently reviewed evaluation set is needed.
+
+## Unit testing
+
+Created `tests/unit/test_classify.py`.
+
+Coverage includes:
+- Question message construction.
+- Question-tag injection escaping.
+- Empty question and prompt validation.
+- Valid and invalid classification labels.
+- Accuracy calculation and invalid inputs.
+- Prompt leakage detection.
+- Gateway invocation and metadata.
+- Invalid gateway response handling.
+
+Classifier unit tests: 25 passed.
+
+## Remaining work
+
+- Build the strict Pydantic document metadata contract.
+- Implement metadata extraction prompts.
+- Implement extraction, validation and bounded repair.
+- Run extraction on five trial documents and manually verify the results.
+- Process the corpus and record successes, failures and repair attempts.
+- Add metadata extraction tests and integration coverage.
+- Inspect the 43 remaining empty-text pages.
+- Decide which classifier prompt version to use after evaluating reliability and cost requirements.
+- Integrate the classifier into the chat route only after its behaviour is tested.
+
+
+## Day 9 — Metadata Extraction Results
+
+### Extraction completion
+- Parsed documents in Neon: 15
+- Documents extracted with `extract_v2`: 15
+- Documents pending: 0
+- Documents marked as repaired: 7 (verified using SQL)
+- Failed documents in the final extraction run: 0
+- Extraction status independently verified using Neon SQL.
+
+### Prompt experiment: v1 vs v2
+Same initial five documents were processed with both prompt versions.
+
+| Metric | extract_v1 | extract_v2 |
+|---|---:|---:|
+| Successful documents | 5 | 5 |
+| Repaired documents | 3 | 2 |
+| Failed documents | 0 | 0 |
+| Input tokens | 15,478 | 18,217 |
+| Output tokens | 1,516 | 1,572 |
+| Estimated cost | Rs. 0.801173 | Rs. 0.892534 |
+| Elapsed seconds | 54.8 | 43.0 |
+
+v2 reduced repair attempts and improved the observed title extraction on the test documents. Its cost was approximately 11.4% higher. This five-document experiment is a baseline, not proof of general extraction accuracy.
+
+### Prompt v2 improvements
+- Prioritizes publication dates printed inside documents.
+- Distinguishes publication years from catalogue titles and cited years.
+- Avoids arbitrary truncation of document names.
+- Rejects OCR artefacts and malformed topic tags.
+- Separates the actual document identity from related resources.
+- Requires recommendations to be supported by supplied text.
+- Accounts for extraction from an opening-page excerpt rather than the full PDF.
+
+### Corpus execution
+- Extraction uses up to the first three pages and a maximum of 6,000 characters per document.
+- Rate limit: 12 documents per minute.
+- Metadata is validated with the Pydantic DocMeta schema.
+- Invalid JSON or schema output is repaired up to three attempts.
+- Valid metadata is merged into the existing document metadata without discarding parser fields.
+- Extraction prompt version and attempt information are recorded in metadata.
+
+### Resilience observation
+The first full-corpus run encountered Neon connection interruptions (Windows WinError 121 and WinError 64). LLM usage recording and a document metadata update encountered connection failures. The process was stopped, database state was verified, and the seven remaining documents were processed successfully in a fresh run.
+
+This demonstrates successful manual resume through prompt-version-based pending selection. Automatic database reconnection and persistence retry hardening remain potential improvements.
+
+### Quality limitations
+- Pydantic validation confirms schema compliance, not factual correctness.
+- Source-level spot checks were performed for DR-TB 2025, DR-TB 2021 and the PMTPT FAQ.
+- The DR-TB 2025 document is titled 2025 in the catalogue, while its cover states November 2024; the extracted publication year is 2024.
+- Not every metadata field is expected to be populated when the supplied source excerpt does not support it.
+- Remaining empty parsed pages require separate corpus-quality investigation.
+
+### Empty-page audit — follow-up
+
+A structural and rendering audit identified 43 empty-text page records across 8 PDFs.
+
+Classification from the automated visual audit:
+- 15 pages are likely blank: no detected images, drawings or rendered ink.
+- 3 pages in document 26 contain minimal vector objects but no detectable rendered ink; classification remains uncertain.
+- 10 pages in document 27 contain substantial drawing/background content. A representative page was visually inspected and appeared decorative.
+- 14 pages in document 32 contain image/vector content, including infographic and cover material.
+- 1 page in document 34 contains substantial vector content and appears to be a publication cover.
+
+OCR experiments:
+- Document 32, page 28: partial infographic labels recovered at 300 DPI; 450 DPI remained noisy and incomplete.
+- Document 32, page 58: publisher details and URLs successfully recovered at 300 DPI.
+- Document 34, page 40: no OCR text recovered at 450 DPI despite visible vector content.
+- A representative decorative page from document 27 returned no OCR text.
+
+Limitations and decisions:
+- The automated audit covered all 43 empty-text records, but visual inspection was performed on representative samples, not every page individually.
+- Empty text does not necessarily mean a blank PDF page.
+- Higher DPI alone did not reliably recover vector or infographic content.
+- OCR experiments were read-only and did not overwrite database page records.
+- Existing parsed data was preserved. No bulk OCR retry was performed based solely on visual heuristics.
+- Further visual/vector extraction work remains a corpus-quality improvement task.
