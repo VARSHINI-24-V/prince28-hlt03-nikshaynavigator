@@ -955,9 +955,19 @@ Classifier unit tests: 25 passed.
 - Classifier integrated into `/v1/chat` in the separately documented Question Router Integration section below.
 
 ### Manual metadata quality checks
-- Source-level spot checks currently recorded: DR-TB 2025, DR-TB 2021 and PMTPT FAQ (3 records).
-- The Day 9 target is at least five manually inspected records. Two additional extracted records still need a source-to-metadata comparison and a note here before that subtask can be marked complete.
-- Pydantic validation confirms schema compliance; it does not by itself establish factual correctness.
+Five source-level metadata records have now been checked:
+
+| Record | Source-level comparison | Result / limitation |
+|---|---|---|
+| National Guidelines for Management of DR-TB 2025 | Cover title and publication year | Previously checked; title/year match |
+| Guidelines for Programmatic Management of DR-TB 2021 | Cover title and publication year | Previously checked; title/year match |
+| Frequently Asked Questions on PMTPT 2021 | Cover title and publication year | Previously checked; title/year match |
+| National Guidance on Differentiated TB Care 2025 | Official CTD PDF title page and opening messages compared with extracted title, year, document kind, topic tags and populations | Title/year and listed topics/populations are supported. The empty recommendation list is conservative; the opening message contains policy actions that may merit a later extraction-quality review. |
+| Guidance Document on Ni-kshay Mitra Initiative 2026 | Official CTD PDF cover and front matter compared with extracted title, year, document kind, language and document name | Title/year and document identity match. The extractor uses only the first three parsed pages; empty population, recommendation and supersedes lists are not treated as errors where that excerpt provides no explicit values. |
+
+The five-record manual inspection target is met. This is a source-level spot check, not a complete factual audit of every extracted field or every page in the two full documents.
+
+Pydantic validation confirms schema compliance; it does not by itself establish factual correctness.
 
 ### Separate corpus-quality follow-up
 - The 43 empty-text page records across 8 PDFs were structurally and visually audited; see the Empty-page audit section below.
