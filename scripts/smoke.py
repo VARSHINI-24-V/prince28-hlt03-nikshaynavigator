@@ -130,10 +130,7 @@ def run_smoke_test(base_url: str, expected_version: str | None) -> bool:
     ):
         raise SmokeTestError("/v1/usage returned an invalid response")
 
-    print(
-        f"ok   /v1/usage -> 200 (calls={usage_calls}, "
-        f"total_cost_inr={usage_cost})"
-    )
+    print(f"ok   /v1/usage -> 200 (calls={usage_calls}, total_cost_inr={usage_cost})")
 
     return True
 
