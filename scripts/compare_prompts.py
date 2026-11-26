@@ -234,7 +234,33 @@ async def run_benchmark(limit: int | None = None) -> None:
                 )
 
                 score = correct / len(completed) * 100
+                # Confusion matrix: actual labels vs predicted labels.
+                labels = ["docs", "personal", "off_topic", "INVALID"]
 
+                matrix = {
+                    actual: {predicted: 0 for predicted in labels}
+                    for actual in labels[:-1]
+                }
+
+                for item in completed:
+                    actual = item["expected"]
+                    predicted = item["predicted"]
+
+                    if predicted not in VALID_LABELS:
+                        predicted = "INVALID"
+
+                    matrix[actual][predicted] += 1
+
+                print("\nConfusion Matrix (rows=actual, columns=predicted)")
+                print(f"{'Actual':<12}" + "".join(f"{label:>12}" for label in labels))
+
+                for actual in labels[:-1]:
+                    print(
+                        f"{actual:<12}"
+                        + "".join(
+                            f"{matrix[actual][predicted]:>12}" for predicted in labels
+                        )
+                    )
                 latencies = [item["latency_ms"] for item in completed]
 
                 total_cost = sum(item["cost_inr"] for item in completed)

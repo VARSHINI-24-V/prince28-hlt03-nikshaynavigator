@@ -4,7 +4,7 @@ import re
 from collections.abc import Iterable, Sequence
 from typing import Literal, cast
 
-from nikshaynavigator.llm.gateway import LLMGateway, Message
+from nikshaynavigator.llm.gateway import LLMGateway, LLMResult, Message
 from nikshaynavigator.llm.prompts import load_prompt
 
 Label = Literal["docs", "personal", "off_topic"]
@@ -55,12 +55,12 @@ def parse_label(response: str) -> Label:
     return cast(Label, label)
 
 
-async def classify(
+async def classify_with_result(
     question: str,
     gateway: LLMGateway,
-    prompt_version: str = "classify_v1",
-) -> Label:
-    """Classify one question using the selected versioned prompt."""
+    prompt_version: str = "classify_v4",
+) -> tuple[Label, LLMResult]:
+    """Return the classification label and its gateway usage details."""
 
     if not question.strip():
         raise ValueError("Question must not be empty.")
@@ -78,7 +78,23 @@ async def classify(
         temperature=0.0,
     )
 
-    return parse_label(result.text)
+    return parse_label(result.text), result
+
+
+async def classify(
+    question: str,
+    gateway: LLMGateway,
+    prompt_version: str = "classify_v1",
+) -> Label:
+    """Return only the classification label."""
+
+    label, _ = await classify_with_result(
+        question,
+        gateway,
+        prompt_version,
+    )
+
+    return label
 
 
 def accuracy(expected: Sequence[str], predicted: Sequence[str]) -> float:

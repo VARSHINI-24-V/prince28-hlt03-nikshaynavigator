@@ -1,4 +1,4 @@
-"""POST /v1/chat (streaming) and GET /v1/usage."""
+"""POST /v1/chat with classification, streaming and usage tracking."""
 
 import json
 from collections.abc import AsyncIterator
@@ -11,17 +11,28 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from nikshaynavigator.api.deps import GatewayDep, UsageDep
+from nikshaynavigator.llm.classify import classify_with_result
 from nikshaynavigator.llm.gateway import LLMResult, LLMUnavailable
 
 router = APIRouter(tags=["chat"])
 
 PROMPT_VERSION = "chat_system_v1"
+CLASSIFIER_PROMPT_VERSION = "classify_v4"
+
+FIXED_RESPONSES = {
+    "personal": (
+        "I cannot access or verify an individual's private patient records "
+        "or live treatment status. Please check the authorised health records "
+        "system and consult the responsible healthcare professional."
+    ),
+    "off_topic": (
+        "I am designed to help with NTEP and TB programme guidelines. "
+        "Please ask a question related to TB programme guidance."
+    ),
+}
 
 
-def load_prompt(
-    directory: Path,
-    name: str = PROMPT_VERSION,
-) -> str:
+def load_prompt(directory: Path, name: str = PROMPT_VERSION) -> str:
     """Read the prompt file. Fail fast if it is missing."""
     return (directory / f"{name}.md").read_text(encoding="utf-8").strip()
 
@@ -34,24 +45,74 @@ class ChatRequest(BaseModel):
 def sse(data: dict, event: str = "") -> str:
     """Build one Server-Sent Event."""
     head = f"event: {event}\n" if event else ""
-    return (
-        f"data: {json.dumps(data, ensure_ascii=False)}\n\n"
-        if not head
-        else (f"{head}data: {json.dumps(data, ensure_ascii=False)}\n\n")
-    )
+    return f"{head}data: {json.dumps(data, ensure_ascii=False)}\n\n"
 
 
 def summary(result: LLMResult) -> dict:
-    """Return result metadata without duplicating the answer."""
+    """Return usage metadata without duplicating answer text."""
     return {key: value for key, value in asdict(result).items() if key != "text"}
 
 
+def classification_info(label: str, result: LLMResult) -> dict:
+    return {
+        "classification": label,
+        "classifier_prompt_version": CLASSIFIER_PROMPT_VERSION,
+        "classifier_usage": summary(result),
+    }
+
+
 @router.post("/chat")
-async def chat(
-    body: ChatRequest,
-    request: Request,
-    gateway: GatewayDep,
-):
+async def chat(body: ChatRequest, request: Request, gateway: GatewayDep):
+    # Step 1: classify before generating an answer.
+    try:
+        label, classifier_result = await classify_with_result(
+            body.message,
+            gateway,
+            CLASSIFIER_PROMPT_VERSION,
+        )
+    except LLMUnavailable as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="Question classification is temporarily unavailable.",
+        ) from exc
+    except ValueError as exc:
+        # Fail closed: an invalid label must never reach answer generation.
+        raise HTTPException(
+            status_code=502,
+            detail="The question could not be safely classified.",
+        ) from exc
+
+    info = classification_info(label, classifier_result)
+
+    # Step 2: personal and off-topic questions get a fixed response.
+    # No second model call is made.
+    if label in FIXED_RESPONSES:
+        answer = FIXED_RESPONSES[label]
+
+        if not body.stream:
+            return {
+                "answer": answer,
+                **summary(classifier_result),
+                **info,
+            }
+
+        async def fixed_events() -> AsyncIterator[str]:
+            yield sse({"delta": answer})
+            yield sse(
+                {**summary(classifier_result), **info},
+                event="done",
+            )
+
+        return StreamingResponse(
+            fixed_events(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "X-Accel-Buffering": "no",
+            },
+        )
+
+    # Step 3: only docs questions reach the answer-generation model.
     messages = [
         {
             "role": "system",
@@ -69,20 +130,24 @@ async def chat(
                 messages,
                 prompt_version=PROMPT_VERSION,
             )
-            return {"answer": result.text, **summary(result)}
+            return {
+                "answer": result.text,
+                **summary(result),
+                **info,
+            }
 
         stream = gateway.stream(
             messages,
             prompt_version=PROMPT_VERSION,
         )
 
-        # Wait for first piece before sending HTTP 200.
+        # Get the first piece before returning HTTP 200.
         first = await anext(stream)
 
     except LLMUnavailable as exc:
         raise HTTPException(
             status_code=503,
-            detail=f"No model could answer: {exc}",
+            detail="Answer generation is temporarily unavailable.",
         ) from exc
 
     async def events() -> AsyncIterator[str]:
@@ -91,7 +156,10 @@ async def chat(
         try:
             while True:
                 if isinstance(item, LLMResult):
-                    yield sse(summary(item), event="done")
+                    yield sse(
+                        {**summary(item), **info},
+                        event="done",
+                    )
                     return
 
                 yield sse({"delta": item})
@@ -100,15 +168,13 @@ async def chat(
         except LLMUnavailable as exc:
             yield sse({"detail": str(exc)}, event="error")
 
-    headers = {
-        "Cache-Control": "no-cache",
-        "X-Accel-Buffering": "no",
-    }
-
     return StreamingResponse(
         events(),
         media_type="text/event-stream",
-        headers=headers,
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+        },
     )
 
 
@@ -119,11 +185,7 @@ async def usage(
 ) -> dict:
     """Return token consumption and rupee costs per day."""
     rows = await repo.by_day(days)
-
-    total = round(
-        sum(row["cost_inr"] for row in rows),
-        4,
-    )
+    total = round(sum(row["cost_inr"] for row in rows), 4)
 
     return {
         "days": rows,
