@@ -1,4 +1,6 @@
-from contextlib import asynccontextmanager
+import asyncio
+import logging
+from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
@@ -8,17 +10,12 @@ from nikshaynavigator.api.errors import (
     validation_exception_handler,
 )
 from nikshaynavigator.api.middleware import request_tracking_middleware
-from nikshaynavigator.api.routes.chat import (
-    load_prompt,
-)
-from nikshaynavigator.api.routes.chat import (
-    router as chat_router,
-)
+from nikshaynavigator.api.routes.chat import load_prompt
+from nikshaynavigator.api.routes.chat import router as chat_router
 from nikshaynavigator.api.routes.documents import router as documents_router
-from nikshaynavigator.api.routes.feedback import (
-    router as feedback_router,
-)
+from nikshaynavigator.api.routes.feedback import router as feedback_router
 from nikshaynavigator.api.routes.health import router as health_router
+from nikshaynavigator.api.routes.ingest import router as ingest_router
 from nikshaynavigator.api.routes.pool_metrics import (
     router as pool_metrics_router,
 )
@@ -27,6 +24,8 @@ from nikshaynavigator.db.llm_calls import LlmCallRepository
 from nikshaynavigator.db.session import make_engine, make_sessionmaker
 from nikshaynavigator.llm.gateway import build_gateway
 from nikshaynavigator.logging_setup import setup_logging
+
+logger = logging.getLogger("nikshaynavigator.api")
 
 
 def create_app() -> FastAPI:
@@ -40,6 +39,7 @@ def create_app() -> FastAPI:
 
     async def record_llm_call(row: dict) -> None:
         """Persist each LLM call in PostgreSQL."""
+
         async with session_factory() as session:
             repository = LlmCallRepository(session)
             await repository.record(row)
@@ -56,9 +56,40 @@ def create_app() -> FastAPI:
         app.state.gateway = gateway
         app.state.system_prompt = system_prompt
 
+        worker = None
+        worker_task = None
+
         try:
+            if settings.worker_in_api:
+                from arq.worker import create_worker
+
+                from nikshaynavigator.workers.main import WorkerSettings
+
+                worker = create_worker(
+                    WorkerSettings,
+                    handle_signals=False,
+                )
+
+                worker_task = asyncio.create_task(
+                    worker.async_run(),
+                    name="nikshaynavigator-arq-worker",
+                )
+
+                app.state.ingest_worker = worker
+                app.state.ingest_worker_task = worker_task
+
+                logger.info("Embedded ingestion worker started")
+
             yield
+
         finally:
+            if worker is not None:
+                await worker.close()
+
+            if worker_task is not None:
+                with suppress(asyncio.CancelledError, Exception):
+                    await worker_task
+
             await engine.dispose()
 
     app = FastAPI(
@@ -72,6 +103,7 @@ def create_app() -> FastAPI:
         HTTPException,
         http_exception_handler,
     )
+
     app.add_exception_handler(
         RequestValidationError,
         validation_exception_handler,
@@ -84,6 +116,7 @@ def create_app() -> FastAPI:
     app.include_router(pool_metrics_router)
     app.include_router(chat_router, prefix="/v1")
     app.include_router(feedback_router, prefix="/v1")
+    app.include_router(ingest_router, prefix="/v1")
 
     return app
 

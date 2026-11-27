@@ -140,3 +140,49 @@ async def store_parse_failure(
     await session.flush()
 
     return failure
+
+
+def document_id(sha256: str) -> str:
+    """Use the file's content hash as its stable document identity."""
+
+    value = sha256.strip().lower()
+
+    if len(value) != 64 or any(char not in "0123456789abcdef" for char in value):
+        raise ValueError("Invalid SHA-256 hash.")
+
+    return value
+
+
+async def save_document(
+    session: AsyncSession,
+    record: dict,
+    parsed: ParsedDoc,
+) -> Document:
+    """Save a parsed document using its content hash as identity."""
+
+    return await store_parsed_document(
+        session,
+        external_id=document_id(record["sha256"]),
+        parsed=parsed,
+        path=record["path"],
+        sha256=record["sha256"],
+        source_url=record.get("url"),
+        licence=record.get("licence"),
+        doc_type=parsed.kind,
+    )
+
+
+async def save_failure(
+    session: AsyncSession,
+    record: dict,
+    error: ParseError,
+) -> ParseFailure:
+    """Persist a document parsing failure."""
+
+    return await store_parse_failure(
+        session,
+        path=record["path"],
+        sha256=record["sha256"],
+        source_url=record.get("url"),
+        error=error,
+    )

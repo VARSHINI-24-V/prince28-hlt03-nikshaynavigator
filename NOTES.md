@@ -1108,3 +1108,86 @@ Enhanced `scripts/compare_prompts.py` with a confusion matrix:
 - Full test suite: 205 passed, 19 skipped.
 - Ruff lint: passed.
 - Ruff formatting: passed.
+
+# Day 10 - Ingestion Queue, Worker Recovery and Dead Letters
+
+**Date:** 27 November 2026
+**Branch:** `feat/day-10-queue`
+
+## 1. Corpus and Initial Ingestion
+
+- Manifest records: 20
+- Downloaded and verified documents: 20
+- Earlier local ingestion run: 10 distinct documents, 906 pages.
+- The 10-document run and the 20-document recovery test used separate local databases.
+
+## 2. Worker Kill-and-Restart Test
+
+Test database: `nikshay_killtest_ocr`
+
+Job ID: `be270da149fc4428938ec7e4040edeac`
+
+At the worker interruption checkpoint:
+- Done: 8
+- Running: 2
+- Queued: 10
+- Failed: 0
+- Pages: 1,018
+
+After restarting the worker and recovering unfinished work:
+
+| Metric | Final result |
+|---|---:|
+| Requested | 20 |
+| Done | 20 |
+| Skipped | 0 |
+| Failed | 0 |
+| Queued | 0 |
+| Pages | 1,633 |
+| Retried items | 3 |
+
+Retry evidence:
+- Item 9: attempt 2
+- Item 10: attempt 2
+- Item 15: attempt 2
+
+Database idempotency verification:
+- Documents: 20
+- Distinct external IDs: 20
+- No duplicate document records.
+
+**Outcome:** All 20 items completed after worker recovery. No documents were lost or duplicated.
+
+## 3. Recovery Issue and Fix
+
+Item 15 (Standard Treatment Workflows for Drug-Sensitive TB) remained queued in PostgreSQL after worker recovery.
+
+Investigation showed:
+- PostgreSQL status: queued
+- Redis queue: empty
+- A stale ARQ result key existed for the item.
+
+Removed only the stale `arq:result:ingest-item-15` key and restarted the worker. Startup recovery re-enqueued the unfinished item. The final job reached 20/20 done.
+
+## 4. Dead-Letter Verification
+
+- Added PostgreSQL integration coverage for dead-letter filtering.
+- Successfully ingested documents are excluded from the unresolved dead-letter list when their SHA-256 matches.
+- Original failed records are preserved.
+- Dedicated regression test: passed.
+- Local dead-letter endpoint returned an empty list after the successful retry.
+
+## 5. Test and Code Quality Results
+
+- Unit tests: 221 passed.
+- Full test suite: 241 passed.
+- Ruff lint: passed.
+- Ruff formatting: passed.
+
+## 6. Pending Delivery Evidence
+
+- Database-generated `docs/INGEST_REPORT.md`: pending generator implementation.
+- First-run elapsed time: not recorded.
+- CAPACITY page/token comparison: pending.
+- Render deployment and live ingestion verification: pending.
+- GitHub pull request and `week-2` tag: pending.

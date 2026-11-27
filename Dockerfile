@@ -34,6 +34,9 @@ WORKDIR /app
 # Update runtime OS packages to patch known vulnerabilities
 RUN apt-get update \
     && apt-get upgrade -y --no-install-recommends \
+    && apt-get install -y --no-install-recommends \
+        tesseract-ocr \
+        tesseract-ocr-eng \
     && rm -rf /var/lib/apt/lists/*
 
 # Create a non-root application user
