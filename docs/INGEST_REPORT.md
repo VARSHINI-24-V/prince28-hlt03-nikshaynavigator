@@ -140,7 +140,7 @@ Remote deployment and GitHub delivery remain pending.
 
 ## Database-generated ingestion results
 
-- **Generated at (UTC):** 2026-11-27T16:09:13.323043+00:00
+- **Generated at (UTC):** 2026-11-27T17:14:13.905012+00:00
 - **Jobs included:** 1
 - **Requested items:** 20
 - **Done:** 20
@@ -149,6 +149,9 @@ Remote deployment and GitHub delivery remain pending.
 - **Queued:** 0
 - **Running:** 0
 - **Pages recorded by ingestion items:** 1633
+- **Extracted text characters:** 3,676,918
+- **Estimated tokens (characters / 4):** 919,230
+- **Estimated tokens per PDF page:** 562.9
 - **Items retried:** 3
 - **All selected jobs finished:** Yes
 
