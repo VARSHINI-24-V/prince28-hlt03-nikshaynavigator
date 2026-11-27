@@ -182,4 +182,6 @@ Remote deployment and GitHub delivery remain pending.
 
 ## What I learnt
 
-<!-- Add personal learning observations here. -->
+1. I learned that HTTP 202 means the ingestion request is accepted; the worker processes documents asynchronously.
+2. I learned that PostgreSQL preserves job status and retry attempts, while Redis manages the work queue.
+3. I learned that content-hash idempotency and retry handling allow interrupted jobs to recover without duplicating documents.
