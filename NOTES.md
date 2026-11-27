@@ -1191,3 +1191,45 @@ Removed only the stale `arq:result:ingest-item-15` key and restarted the worker.
 - CAPACITY page/token comparison: pending.
 - Render deployment and live ingestion verification: pending.
 - GitHub pull request and `week-2` tag: pending.
+
+## D10 - Render Production Verification
+
+### Deployment
+- PR #22 merged into main.
+- Deployed commit: `130e603dc089a033b24c6fd5cb800287ca61c7a7`.
+- `/health`: HTTP 200, production environment.
+- `/ready`: HTTP 200, database healthy.
+- Embedded ARQ worker startup verified in Render logs.
+- Free Key Value configured as Redis backend.
+
+### API security
+- POST without X-Admin-Token: HTTP 401.
+- Authenticated POST `/v1/ingest`: HTTP 202.
+
+### Live ingestion
+- Job ID: `138d3195561144cf87e73e5419c9eb71`
+- Requested: 5
+- Done: 5
+- Skipped: 0
+- Failed: 0
+- Pages: 251
+- Queued: 0
+- Running: 0
+- Finished: true.
+
+### Dead-letter endpoint
+- GET `/v1/ingest/dead-letter?limit=50`
+- HTTP 200.
+- Count: 0.
+- No unresolved failed items returned.
+
+### Capacity comparison
+- Existing CAPACITY baseline: 15 documents, 1,382 pages,
+  approximately 610,684 estimated tokens.
+- Separate 20-document kill test: 1,633 pages.
+- Page difference: 251 additional pages.
+- Token estimates use extracted characters divided by four;
+  no actual model tokenizer was run for the 20-document test.
+
+### Timing limitation
+- First-run elapsed time was not recorded and is left unspecified.
