@@ -55,6 +55,12 @@ async def collect_data(job_id: str | None = None) -> dict:
                 select(func.count()).select_from(Page)
             )
 
+            text_character_count = await session.scalar(
+                select(func.coalesce(func.sum(func.length(Page.text)), 0))
+                .join(Document, Page.document_id == Document.id)
+                .where(Document.doc_type != "record")
+            )
+
             jobs = list(
                 (
                     await session.scalars(
@@ -81,6 +87,7 @@ async def collect_data(job_id: str | None = None) -> dict:
             "document_count": document_count or 0,
             "distinct_external_ids": distinct_external_ids or 0,
             "page_row_count": page_row_count or 0,
+            "text_character_count": text_character_count or 0,
             "jobs": jobs,
             "items": items,
         }
@@ -96,6 +103,11 @@ def render_generated_section(data: dict) -> str:
     counts = Counter(item.status for item in items)
 
     total_pages = sum(item.pages or 0 for item in items)
+    text_characters = data["text_character_count"]
+    estimated_tokens = round(text_characters / 4)
+    tokens_per_page = (
+        estimated_tokens / data["page_row_count"] if data["page_row_count"] else 0
+    )
     retried = [item for item in items if (item.attempts or 0) > 1]
 
     terminal_items = counts["done"] + counts["skipped"] + counts["failed"]
@@ -120,6 +132,9 @@ def render_generated_section(data: dict) -> str:
         f"- **Queued:** {counts['queued']}",
         f"- **Running:** {counts['running']}",
         f"- **Pages recorded by ingestion items:** {total_pages}",
+        f"- **Extracted text characters:** {text_characters:,}",
+        f"- **Estimated tokens (characters / 4):** {estimated_tokens:,}",
+        f"- **Estimated tokens per PDF page:** {tokens_per_page:.1f}",
         f"- **Items retried:** {len(retried)}",
         f"- **All selected jobs finished:** {'Yes' if is_finished else 'No'}",
         "",

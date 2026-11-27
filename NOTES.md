@@ -1184,13 +1184,22 @@ Removed only the stale `arq:result:ingest-item-15` key and restarted the worker.
 - Ruff lint: passed.
 - Ruff formatting: passed.
 
-## 6. Pending Delivery Evidence
+## 6. Final Delivery Evidence
 
-- Database-generated `docs/INGEST_REPORT.md`: pending generator implementation.
+- `docs/INGEST_REPORT.md` generated from PostgreSQL.
+- Three personal learning points added to the report.
+- Four dedicated PostgreSQL ingestion integration tests passed.
+- Full test suite: 244 passed.
+- Ruff lint and formatting checks passed.
+- PR #22, PR #23 and PR #24 merged.
+- `week-2` tag pushed to GitHub.
+- Render `/health` and `/ready`: HTTP 200.
+- Live ingestion: 5/5 documents completed, 251 pages.
+- Unauthenticated ingestion request: HTTP 401.
+- Authenticated ingestion request: HTTP 202.
+- Dead-letter endpoint: HTTP 200, zero unresolved items.
 - First-run elapsed time: not recorded.
-- CAPACITY page/token comparison: pending.
-- Render deployment and live ingestion verification: pending.
-- GitHub pull request and `week-2` tag: pending.
+- Worker recovery elapsed time: not recorded.
 
 ## D10 - Render Production Verification
 
@@ -1216,6 +1225,21 @@ Removed only the stale `arq:result:ingest-item-15` key and restarted the worker.
 - Queued: 0
 - Running: 0
 - Finished: true.
+
+### Week 2 against Monday's estimate
+
+| Metric | Monday baseline | Day 10 |
+|---|---:|---:|
+| Documents | 15 | 20 |
+| Pages | 1,382 | 1,633 |
+| Extracted characters | 2,442,734 | 3,676,918 |
+| Estimated tokens | 610,684 | 919,230 |
+| Estimated tokens/page | 441.9 | 562.9 |
+
+- Difference: +251 pages and +308,546 estimated tokens.
+- The Day 10 corpus has higher extracted-text density per page.
+- Estimation method: extracted characters / 4.
+- No actual model tokenizer was run.
 
 ### Dead-letter endpoint
 - GET `/v1/ingest/dead-letter?limit=50`
