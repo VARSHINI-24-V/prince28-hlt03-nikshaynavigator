@@ -34,10 +34,19 @@ class Settings(BaseSettings):
     llm_timeout_seconds: float = 30.0
     usd_inr: float = 95.0
     prompts_dir: Path = Path("prompts")
+    # Queue and worker – Day 10
+    redis_url: str = "redis://localhost:6379"
+    manifest_file: Path = Path("data/manifest.jsonl")
+    admin_token: str = ""
+    worker_in_api: bool = False
+    ingest_concurrency: int = 2
+    ingest_rpm: float = 12.0
+    ingest_job_timeout: int = 180
+    ingest_max_tries: int = 3
     app_env: Literal["local", "ci", "production"]
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     data_file: Path = Path("data/sample_records.json")
-
+    ocr_lang: str = "eng"
     database_url: str
 
 
